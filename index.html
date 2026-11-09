@@ -1185,7 +1185,7 @@
             <div class="p-3.5 rounded-xl bg-white/10 border border-white/20 space-y-1">
               <div class="text-sm font-black text-amber-300">✨ ساخته شده توسط شایان  (مسئول پروژه آبتانو)</div>
               <div class="text-xs text-slate-300">طراحی و توسعه: شایان عباسی — کارشناسی ارشد مهندسی شیمی-بیوتکنولوژی</div>
-              <div class="text-[11px] text-emerald-300 pt-1">نسخه ۵.۰  • مجهز به تقویم هجری شمسی چندساله (کبیسه‌شمار)، Undo/Redo (Ctrl+Z / Ctrl+Y) و خروجی مستقیم اکسل</div>
+              <div class="text-[11px] text-emerald-300 pt-1">نسخه ۸.۰  • مجهز به تقویم هجری شمسی چندساله (کبیسه‌شمار)، Undo/Redo (Ctrl+Z / Ctrl+Y) و خروجی مستقیم اکسل</div>
             </div>
           </div>
 
@@ -2803,7 +2803,12 @@
 
     function getCurrentUserEmployeeId() {
       if (!currentUserSession) return '';
-      if (isAdminUser() && portalPreviewEmpId && appState.employees.some(e => e.id === portalPreviewEmpId)) {
+      // If Admin is in normal Admin mode and selected an employee in the portal preview dropdown
+      if (isAdminUser() && !adminOriginalSession && portalPreviewEmpId && appState.employees.some(e => e.id === portalPreviewEmpId)) {
+        return portalPreviewEmpId;
+      }
+      // If Admin is in "تست دید کاربر" (impersonation) mode, strictly use the impersonated user's employeeId
+      if (adminOriginalSession && portalPreviewEmpId) {
         return portalPreviewEmpId;
       }
       if (currentUserSession.employeeId && appState.employees.some(e => e.id === currentUserSession.employeeId)) {
@@ -2811,7 +2816,12 @@
       }
       const byName = findEmployeeIdByName(currentUserSession.displayName || currentUserSession.username);
       if (byName) return byName;
-      return appState.employees.length > 0 ? appState.employees[0].id : '';
+      if (currentUserSession.employeeId) return currentUserSession.employeeId;
+      // Only fall back to employees[0] for real un-impersonated Admin; NEVER show employees[0] to another user!
+      if (isAdminUser() && !adminOriginalSession && appState.employees.length > 0) {
+        return appState.employees[0].id;
+      }
+      return `unlinked-${currentUserSession.id || currentUserSession.username}`;
     }
 
     function getCurrentUserAllowedTabs() {
@@ -3862,14 +3872,29 @@
     }
 
     function getEmployeeById(empId) {
-      return appState.employees.find(e => e.id === empId) || { id: '', name: 'تعیین‌نشده', role: '', department: '', avatarColor: '#64748b' };
+      const found = appState.employees.find(e => e.id === empId);
+      if (found) return found;
+      if (currentUserSession && empId && String(empId).startsWith('unlinked-')) {
+        return {
+          id: empId,
+          name: currentUserSession.displayName || currentUserSession.username || 'کاربر',
+          role: currentUserSession.role === 'admin' ? 'مدیر سیستم' : 'عضو تیم',
+          department: 'تیم آبتانو',
+          avatarColor: '#0ea5e9',
+          history: []
+        };
+      }
+      return { id: '', name: 'تعیین‌نشده', role: '', department: '', avatarColor: '#64748b', history: [] };
     }
 
     function findEmployeeIdByName(nameStr) {
       if (!nameStr) return '';
-      const clean = nameStr.trim();
-      const found = appState.employees.find(e => e.name === clean || clean.includes(e.name));
-      return found ? found.id : '';
+      const clean = String(nameStr).trim();
+      if (!clean) return '';
+      const exact = appState.employees.find(e => e.name && e.name.trim() === clean);
+      if (exact) return exact.id;
+      const partial = appState.employees.find(e => e.name && (clean.includes(e.name.trim()) || e.name.trim().includes(clean)));
+      return partial ? partial.id : '';
     }
 
     function getEffectiveTaskStatus(task) {
@@ -5171,9 +5196,12 @@
       const previewSelect = document.getElementById('portalMemberPreviewSelect');
       if (previewSelect) {
         const curPreview = empId || '';
-        previewSelect.innerHTML = appState.employees.length > 0
-          ? appState.employees.map(e => `<option value="${e.id}" ${e.id === curPreview ? 'selected' : ''}>${e.name}</option>`).join('')
-          : `<option value="">--</option>`;
+        const visibleForPreview = (isAdminUser() && !adminOriginalSession)
+          ? appState.employees
+          : appState.employees.filter(e => e.id === empId);
+        previewSelect.innerHTML = visibleForPreview.length > 0
+          ? visibleForPreview.map(e => `<option value="${e.id}" ${e.id === curPreview ? 'selected' : ''}>${e.name}</option>`).join('')
+          : `<option value="${empId}">${escapeHtml(emp.name)}</option>`;
       }
 
       const avatarEl = document.getElementById('portalAvatarCircle');
@@ -5196,9 +5224,9 @@
       }
 
       const myTasksAll = (appState.tasks || []).filter(t => {
-        if (!emp.id) return true;
+        if (!emp.id) return false;
         if (t.assigneeId === emp.id) return true;
-        if (t.coAssignee && (t.coAssignee.includes(emp.name) || findEmployeeIdByName(t.coAssignee) === emp.id)) return true;
+        if (emp.name && emp.name !== 'تعیین‌نشده' && t.coAssignee && (t.coAssignee.includes(emp.name) || findEmployeeIdByName(t.coAssignee) === emp.id)) return true;
         return false;
       }).sort((a, b) => compareJalaliStrings(a.deadline, b.deadline));
 
@@ -8863,30 +8891,42 @@
             }
           );
         } else if (action === 'impersonate-user') {
-          if (!isAdminUser()) return;
+          if (!isAdminUser() && !adminOriginalSession) return;
           const uid = btn.getAttribute('data-user-id');
           const u = (appState.users || []).find(x => x.id === uid);
           if (!u) return;
-          // Preserve Admin's real session so background syncs never strip master data!
           if (!adminOriginalSession) {
             adminOriginalSession = JSON.parse(JSON.stringify(currentUserSession));
             try { localStorage.setItem(ADMIN_REAL_SESSION_KEY, JSON.stringify(adminOriginalSession)); } catch (err) {}
           }
+          let resolvedEmpId = (u.employeeId && appState.employees.some(e => e.id === u.employeeId))
+            ? u.employeeId
+            : (findEmployeeIdByName(u.displayName) || findEmployeeIdByName(u.username) || '');
+          if (!resolvedEmpId) {
+            resolvedEmpId = u.employeeId || `unlinked-${u.id}`;
+          } else if (u.employeeId !== resolvedEmpId) {
+            u.employeeId = resolvedEmpId;
+          }
+          const isTargetAdm = (u.role === 'admin' && String(u.username || '').toLowerCase() === 'shayan') || u.role === 'admin';
           currentUserSession = {
             id: u.id,
             username: u.username,
-            displayName: u.displayName,
-            employeeId: u.employeeId,
-            role: u.role,
-            allowedTabs: u.allowedTabs,
-            canDelete: Boolean(u.role === 'admin' || u.canDelete === true),
-            canEditTasks: Boolean(u.role === 'admin' || u.canEditTasks === true)
+            displayName: u.displayName || u.username,
+            employeeId: resolvedEmpId,
+            role: isTargetAdm ? 'admin' : 'employee',
+            allowedTabs: Array.isArray(u.allowedTabs) ? [...u.allowedTabs] : ['my-portal', 'calendar', 'settings'],
+            canDelete: Boolean(isTargetAdm || u.canDelete === true),
+            canEditTasks: Boolean(isTargetAdm || u.canEditTasks === true),
+            token: (adminOriginalSession && adminOriginalSession.token) || (currentUserSession && currentUserSession.token) || 'impersonate-preview-token'
           };
           try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUserSession)); } catch (err) {}
-          portalPreviewEmpId = u.employeeId || '';
-          switchTab(u.role === 'admin' ? 'dashboard' : 'my-portal');
+          portalPreviewEmpId = resolvedEmpId;
+          selectedEmployeeId = resolvedEmpId;
+          activePortalSubTab = 'tasks';
+          activeTab = isTargetAdm ? 'dashboard' : 'my-portal';
           renderAll();
-          showToast(`نمای فعلی به دید کاربر «${u.displayName}» تغییر یافت. برای بازگشت فوری، روی نوار نارنجی بالای صفحه کلیک کنید.`, 'info');
+          switchTab(activeTab);
+          showToast(`نمای فعلی به دید کاربر «${u.displayName || u.username}» تغییر یافت. برای بازگشت فوری، روی نوار نارنجی بالای صفحه کلیک کنید.`, 'info');
         } else if (action === 'restore-local-backup') {
           if (!isAdminUser()) return;
           const bId = btn.getAttribute('data-backup-id');
