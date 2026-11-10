@@ -269,22 +269,38 @@
     [data-mode="dark"] .audit-badge-inv { color: #a78bfa; }
     [data-mode="dark"] .audit-badge-security { color: #fb7185; }
 
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Employee At-a-Glance Dashboard Table (Compact on both Phone & Desktop) */
+    #empDashboardTasksTable th,
+    #empDashboardTasksTable td {
+      padding: 6px 8px;
+    }
+
     @media (max-width: 768px) {
       :root {
-        --cell-py: 5px;
+        --cell-py: 4px;
         --cell-px: 6px;
       }
       header#mainTopHeader .max-w-\[1920px\] {
-        padding: 4px 8px;
+        padding: 4px 6px;
         gap: 4px;
       }
       header#mainTopHeader h1 {
-        font-size: 13px;
+        font-size: 12.5px;
       }
-      /* Hide working date picker bar & quick log buttons on mobile for regular employees so top bar is super slim */
-      body.non-admin-mode #topWorkingDateBar,
-      body.non-admin-mode #topQuickLeftButtons,
-      body.non-admin-mode #headerUserRoleTag {
+      /* Hide working date picker bar & role tag on mobile so top bar fits in a single sleek line */
+      #topWorkingDateBar,
+      #headerUserRoleTag {
+        display: none !important;
+      }
+      body.non-admin-mode #topQuickLeftButtons {
         display: none !important;
       }
       .subnav-bar {
@@ -297,18 +313,23 @@
         display: none;
       }
       .nav-tab-btn {
-        padding: 6px 8px;
-        font-size: 11.5px;
+        padding: 5px 7px;
+        font-size: 11px;
       }
       .excel-table th,
       .excel-table td {
         font-size: 11px;
       }
+      #empDashboardTasksTable th,
+      #empDashboardTasksTable td {
+        padding: 5px 5px;
+        font-size: 11px;
+      }
       /* Ultra-sleek Mobile Header & Portal Layout on Phone Screens */
       #topLogoDropZone {
-        width: 28px !important;
-        height: 28px !important;
-        font-size: 14px !important;
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 13px !important;
       }
       header#mainTopHeader p {
         display: none;
@@ -316,14 +337,14 @@
       #portalSubTabsWrapper {
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
       }
       #portalSubTabsWrapper .portal-subtab-btn {
         justify-content: center;
-        padding: 6px 4px;
-        font-size: 11px;
+        padding: 5px 2px;
+        font-size: 10.5px;
       }
-      /* Responsive Card-Row layout for Employee Task Table on Phone Screens */
+      /* Compact Responsive Card-Row layout for Detailed Task List on Phone Screens */
       #portalTasksTable thead {
         display: none;
       }
@@ -335,24 +356,22 @@
       #portalTasksTable tr {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 4px 8px;
-        margin-bottom: 10px;
+        gap: 2px 6px;
+        margin-bottom: 6px;
         border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 8px 10px;
+        border-radius: 10px;
+        padding: 6px 8px;
         background: var(--bg-surface);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
       }
       #portalTasksTable td {
         border: none;
-        padding: 3px 2px;
+        padding: 2px 2px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 4px;
         white-space: normal !important;
       }
-      /* Full-width rows inside mobile card for Title/Description, Note input, and Action button */
       #portalTasksTable td.mob-full-row {
         grid-column: 1 / -1;
       }
@@ -360,7 +379,7 @@
         grid-column: 1 / -1;
         display: block;
         border-bottom: 1px dashed var(--border-color);
-        padding-bottom: 6px;
+        padding-bottom: 4px;
         margin-bottom: 2px;
       }
       #portalTasksTable td[data-label]::before {
@@ -381,129 +400,121 @@
 </head>
 <body data-accent="excel-green" data-mode="light" data-density="compact" class="min-h-screen flex flex-col">
 
-  <!-- TOP RIBBON HEADER -->
-  <header id="mainTopHeader" class="brand-header shadow-md sticky top-0 z-30">
-    <div class="max-w-[1920px] mx-auto px-3 py-2 flex flex-col gap-2">
-      <!-- Topper Row: Brand & Title + Working Date Picker & Undo/Redo Controls -->
-      <div class="w-full flex flex-wrap items-center justify-between gap-2">
-        <!-- Brand & Title -->
-        <div class="flex items-center gap-3">
-          <div id="topLogoDropZone" class="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center font-black text-lg border border-white/25 shadow-inner relative group shrink-0" title="آب + تابش + نانو">
-            <span id="topLogoFallback">💧</span>
-            <div id="topLogoWrapper" class="hidden w-full h-full items-center justify-center">
-              <img id="topLogoImg" src="" alt="لوگوی آبتانو" class="w-full h-full object-contain rounded-lg select-none" />
-              <button type="button" id="btnRemoveTopLogo" title="حذف لوگو" class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-1.5 -left-1.5 w-4 h-4 rounded-full bg-rose-600 text-white text-[10px] leading-none flex items-center justify-center shadow z-10">✕</button>
-            </div>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="font-extrabold text-base md:text-lg tracking-tight text-white">سامانه مدیریت پروژه و عملیات آبتانو</h1>
-              <span class="text-[11px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold">نسخه ۸.۰ (Enterprise Anti-Loss)</span>
-            </div>
-            <p class="text-[11px] text-white/90">  <strong id="headerSupervisorName"> </strong></p>
+  <!-- TOP RIBBON HEADER (SLEEK SINGLE-ROW OVERHAUL) -->
+  <header id="mainTopHeader" class="brand-header shadow-sm sticky top-0 z-30">
+    <div class="max-w-[1920px] mx-auto px-2.5 py-1.5 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar">
+      <!-- Right Cluster: Logo + Concise Brand + Quick Add Buttons -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div id="topLogoDropZone" class="w-7 h-7 rounded-md bg-white/15 flex items-center justify-center font-black text-sm border border-white/25 shadow-inner relative group shrink-0" title="آبتانو (آب + تابش + نانو)">
+          <span id="topLogoFallback">💧</span>
+          <div id="topLogoWrapper" class="hidden w-full h-full items-center justify-center">
+            <img id="topLogoImg" src="" alt="لوگوی آبتانو" class="w-full h-full object-contain rounded-md select-none" />
+            <button type="button" id="btnRemoveTopLogo" title="حذف لوگو" class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-1 -left-1 w-3.5 h-3.5 rounded-full bg-rose-600 text-white text-[9px] leading-none flex items-center justify-center shadow z-10">✕</button>
           </div>
         </div>
+        <h1 class="font-extrabold text-sm md:text-base tracking-tight text-white whitespace-nowrap">آبتانو</h1>
+        <p class="hidden"><strong id="headerSupervisorName"></strong></p>
 
-        <!-- Working Date Picker & Undo/Redo Controls -->
-        <div id="topWorkingDateBar" class="flex flex-wrap items-center gap-2 bg-black/25 px-2.5 py-1 rounded-lg border border-white/20 text-xs text-white">
-          <span>📅 تاریخ کاری:</span>
-          <span id="liveTodayBadge" class="font-extrabold text-amber-300 text-xs md:text-sm">پنجشنبه ۷ آبان ۱۴۰۵</span>
-          <input type="text" id="simDateInput" value="1405/08/07" dir="ltr" title="تغییر تاریخ کاری (YYYY/MM/DD)" class="w-24 text-center font-mono text-xs rounded px-1.5 py-0.5" />
-          <button id="btnSyncToToday" class="px-2 py-0.5 rounded bg-emerald-500/30 hover:bg-emerald-500/50 border border-emerald-300/40 text-white font-bold flex items-center gap-1" title="همگام‌سازی با تاریخ واقعی امروز">
-            <span>🔄</span><span>امروز</span>
+        <div id="topQuickLeftButtons" class="flex items-center gap-1 shrink-0 mr-1">
+          <button id="btnQuickNewTask" class="bg-white text-slate-900 hover:bg-slate-100 font-extrabold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 shadow-xs whitespace-nowrap" title="ثبت وظیفه جدید">
+            <span>➕</span><span class="hidden sm:inline">وظیفه جدید</span>
           </button>
-          <span class="text-white/30">|</span>
-          <button id="btnUndo" disabled class="admin-only-el px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-40 text-white font-bold flex items-center gap-1" title="Undo آخرین تغییر (Ctrl+Z)">
-            <span>↪️</span><span class="hidden sm:inline">Undo</span>
-          </button>
-          <button id="btnRedo" disabled class="admin-only-el px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-40 text-white font-bold flex items-center gap-1" title="انجام مجدد (Ctrl+Y)">
-            <span>↩️</span><span class="hidden sm:inline">Redo</span>
+          <button id="btnQuickNewLog" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 shadow-xs whitespace-nowrap" title="ثبت گزارش فرد">
+            <span>📝</span><span class="hidden sm:inline">ثبت گزارش فرد</span>
           </button>
         </div>
       </div>
 
-      <!-- Action Bar Row: New Task & New Log on the right (under Title), 4 utility/export buttons on the far left -->
-      <div class="w-full flex flex-wrap items-center justify-between gap-1.5">
-        <div id="topQuickLeftButtons" class="flex flex-wrap items-center gap-1.5">
-          <button id="btnQuickNewTask" class="bg-white text-slate-900 hover:bg-slate-100 font-extrabold px-2.5 py-1.5 rounded text-xs flex items-center gap-1 shadow-sm">
-            <span>➕</span><span>وظیفه جدید</span>
+      <!-- Left Cluster: Date/Undo + Sync Status Button + Theme/Exports + User & Logout -->
+      <div class="flex items-center gap-1 shrink-0 mr-auto">
+        <!-- Working Date Picker & Undo/Redo Controls (Compact Single-Line) -->
+        <div id="topWorkingDateBar" class="hidden md:flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded-md border border-white/15 text-[11px] text-white shrink-0">
+          <span id="liveTodayBadge" class="font-bold text-amber-300 text-[11px] hidden xl:inline whitespace-nowrap">پنجشنبه ۷ آبان ۱۴۰۵</span>
+          <input type="text" id="simDateInput" value="1405/08/07" dir="ltr" title="تغییر تاریخ کاری (YYYY/MM/DD)" class="w-20 text-center font-mono text-[11px] rounded px-1 py-0.5" />
+          <button id="btnSyncToToday" class="px-1.5 py-0.5 rounded bg-emerald-500/30 hover:bg-emerald-500/50 border border-emerald-300/40 text-white font-bold flex items-center gap-0.5 whitespace-nowrap" title="همگام‌سازی با تاریخ واقعی امروز">
+            <span>🔄</span><span class="hidden lg:inline">امروز</span>
           </button>
-          <button id="btnQuickNewLog" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-2.5 py-1.5 rounded text-xs flex items-center gap-1 shadow-sm">
-            <span>📝</span><span>ثبت گزارش فرد</span>
+          <button id="btnUndo" disabled class="admin-only-el px-1.5 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-40 text-white font-bold flex items-center" title="Undo آخرین تغییر (Ctrl+Z)">
+            <span>↪️</span><span class="sr-only">Undo</span>
           </button>
-        </div>
-        <div class="flex flex-wrap items-center gap-1.5 mr-auto">
-          <!-- Logged-In User Badge & Role -->
-          <div id="headerUserBadge" class="bg-black/30 px-2.5 py-1 rounded-lg border border-white/25 text-xs text-white flex items-center gap-1.5">
-            <span id="headerUserRoleIcon">🛡️</span>
-            <span id="headerUserNameText" class="font-extrabold text-emerald-200">مدیر سیستم</span>
-            <span id="headerUserRoleTag" class="text-[10px] bg-white/20 px-1.5 py-0.2 rounded">Admin</span>
-          </div>
-          <!-- Cloud Sync Button -->
-          <button type="button" id="btnCloudSyncNow" class="bg-sky-500/35 hover:bg-sky-500/55 text-white font-extrabold px-2.5 py-1.5 rounded text-xs flex items-center gap-1 border border-sky-300/40" title="همگام‌سازی فوری اطلاعات با سرور مرکزی">
-            <span id="cloudSyncIcon">🔄</span><span id="cloudSyncStatusBadge" class="hidden sm:inline">همگام‌سازی سرور</span>
-          </button>
-          <button id="btnToggleDarkMode" class="bg-black/25 hover:bg-black/40 text-white font-bold px-2.5 py-1.5 rounded text-xs flex items-center gap-1 border border-white/25" title="تغییر حالت روشن / تیره">
-            <span id="darkModeIcon">🌙</span><span id="darkModeLabel" class="hidden sm:inline">حالت تیره</span>
-          </button>
-          <button id="btnQuickExportExcel" class="admin-only-el bg-white/15 hover:bg-white/25 text-white px-2.5 py-1.5 rounded text-xs flex items-center gap-1 border border-white/20" title="دانلود جدول رنگی برای اکسل">
-            <span>📊</span><span>خروجی اکسل</span>
-          </button>
-          <button id="btnQuickExportCSV" class="admin-only-el bg-white/15 hover:bg-white/25 text-white px-2.5 py-1.5 rounded text-xs flex items-center gap-1 border border-white/20" title="دانلود فایل CSV استاندارد">
-            <span>📄</span><span>خروجی CSV</span>
-          </button>
-          <button id="btnOpenImportExportModal" class="admin-only-el bg-amber-500/90 hover:bg-amber-500 text-slate-950 font-extrabold px-2.5 py-1.5 rounded text-xs flex items-center gap-1 shadow-sm">
-            <span>💾</span><span>Import / Export</span>
-          </button>
-          <button type="button" id="btnLogoutUser" class="bg-rose-600/90 hover:bg-rose-600 text-white font-extrabold px-2.5 py-1.5 rounded text-xs flex items-center gap-1 shadow-sm border border-rose-300/30" title="خروج از حساب کاربری یا تغییر کاربر">
-            <span>🚪</span><span>خروج</span>
+          <button id="btnRedo" disabled class="admin-only-el px-1.5 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-40 text-white font-bold flex items-center" title="انجام مجدد (Ctrl+Y)">
+            <span>↩️</span><span class="sr-only">Redo</span>
           </button>
         </div>
+
+        <!-- Unified Cloud Sync Button & Live Status Indicator -->
+        <button type="button" id="btnCloudSyncNow" class="bg-sky-500/35 hover:bg-sky-500/55 text-white font-extrabold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 border border-sky-300/40 whitespace-nowrap shrink-0" title="وضعیت و همگام‌سازی فوری اطلاعات با سرور مرکزی">
+          <span id="cloudSyncIcon">🔄</span><span id="cloudSyncStatusBadge" class="text-[10px] sm:text-[11px]">همگام‌سازی سرور</span>
+        </button>
+
+        <button id="btnToggleDarkMode" class="bg-black/25 hover:bg-black/40 text-white font-bold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 border border-white/20 shrink-0" title="تغییر حالت روشن / تیره">
+          <span id="darkModeIcon">🌙</span><span id="darkModeLabel" class="sr-only">حالت تیره</span>
+        </button>
+
+        <button id="btnQuickExportExcel" class="admin-only-el bg-white/15 hover:bg-white/25 text-white px-2 py-1 rounded-md text-[11px] flex items-center gap-1 border border-white/20 whitespace-nowrap shrink-0" title="دانلود جدول رنگی برای اکسل">
+          <span>📊</span><span class="hidden 2xl:inline">خروجی اکسل</span>
+        </button>
+        <button id="btnQuickExportCSV" class="admin-only-el bg-white/15 hover:bg-white/25 text-white px-2 py-1 rounded-md text-[11px] flex items-center gap-1 border border-white/20 whitespace-nowrap shrink-0" title="دانلود فایل CSV استاندارد">
+          <span>📄</span><span class="hidden 2xl:inline">خروجی CSV</span>
+        </button>
+        <button id="btnOpenImportExportModal" class="admin-only-el bg-amber-500/90 hover:bg-amber-500 text-slate-950 font-extrabold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 shadow-xs whitespace-nowrap shrink-0" title="مرکز Import / Export و پشتیبان‌گیری">
+          <span>💾</span><span class="hidden xl:inline">Import / Export</span>
+        </button>
+
+        <!-- Logged-In User Badge -->
+        <div id="headerUserBadge" class="bg-black/25 px-2 py-0.5 rounded-md border border-white/20 text-[11px] text-white flex items-center gap-1 shrink-0 max-w-[130px] sm:max-w-none">
+          <span id="headerUserRoleIcon" class="text-[11px]">🛡️</span>
+          <span id="headerUserNameText" class="font-extrabold text-emerald-200 truncate">مدیر سیستم</span>
+          <span id="headerUserRoleTag" class="hidden lg:inline text-[9px] bg-white/20 px-1 py-0.2 rounded">Admin</span>
+        </div>
+
+        <button type="button" id="btnLogoutUser" class="bg-rose-600/90 hover:bg-rose-600 text-white font-extrabold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 shadow-xs border border-rose-300/30 whitespace-nowrap shrink-0" title="خروج از حساب کاربری">
+          <span>🚪</span><span class="hidden sm:inline">خروج</span>
+        </button>
       </div>
     </div>
 
-    <!-- SECONDARY NAVIGATION BAR -->
-    <div class="subnav-bar px-3 flex items-center justify-between overflow-x-auto">
-      <nav class="flex items-center space-x-1 space-x-reverse" id="mainNavTabs">
-        <button data-tab="my-portal" id="navBtnMyPortal" class="nav-tab-btn tab-active px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>👤</span><span>میز کار و کارنمای من</span>
+    <!-- SECONDARY NAVIGATION BAR (SINGLE-LINE SLIM TAB BAR) -->
+    <div class="subnav-bar px-2 flex items-center justify-between overflow-x-auto no-scrollbar">
+      <nav class="flex items-center gap-0.5" id="mainNavTabs">
+        <button data-tab="my-portal" id="navBtnMyPortal" class="nav-tab-btn tab-active px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>⚡</span><span>داشبورد من</span>
           <span id="navBadgeMyTasks" class="bg-indigo-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button data-tab="dashboard" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
+        <button data-tab="dashboard" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
           <span>📈</span><span>داشبورد</span>
         </button>
-        <button data-tab="tasks" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
+        <button data-tab="tasks" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
           <span>📋</span><span>جدول وظایف</span>
           <span id="navBadgeTasks" class="bg-emerald-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button data-tab="calendar" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>🗓️</span><span>تقویم شمسی</span>
+        <button data-tab="calendar" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>🗓️</span><span>تقویم</span>
         </button>
-        <button data-tab="employees" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>👥</span><span>اعضای تیم و کارنما</span>
+        <button data-tab="employees" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>👥</span><span>اعضای تیم</span>
           <span id="navBadgeEmployees" class="bg-sky-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button data-tab="inventory" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>📦</span><span>انبار و تدارکات</span>
+        <button data-tab="inventory" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>📦</span><span>انبار</span>
           <span id="navBadgeInventory" class="bg-amber-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button data-tab="projects" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>🚀</span><span>پروژه‌ها و صورت‌جلسات</span>
+        <button data-tab="projects" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>🚀</span><span>پروژه‌ها</span>
         </button>
-        <button data-tab="calculator" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>🧮</span><span>ماشین‌حساب قیمت و سود دستگاه</span>
+        <button data-tab="calculator" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>🧮</span><span>ماشین‌حساب</span>
         </button>
-        <button data-tab="admin" id="navBtnAdmin" class="admin-only-el nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>🛡️</span><span>مدیریت دسترسی و تاریخچه تغییرات</span>
+        <button data-tab="admin" id="navBtnAdmin" class="admin-only-el nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>🛡️</span><span>مدیریت</span>
           <span id="navBadgeAudit" class="bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button data-tab="settings" class="nav-tab-btn px-3 py-2 text-xs md:text-sm flex items-center gap-1.5 whitespace-nowrap">
-          <span>⚙️</span><span>تنظیمات و درباره</span>
+        <button data-tab="settings" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
+          <span>⚙️</span><span>تنظیمات</span>
         </button>
       </nav>
 
-      <div class="hidden xl:flex items-center gap-2 text-[11px] muted-text py-1">
-        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+      <div class="hidden">
         <span id="storageStatusText">ذخیره خودکار فعال (Ctrl+Z / Ctrl+Y)</span>
       </div>
     </div>
@@ -530,7 +541,7 @@
   </div>
 
   <!-- MAIN WORKSPACE CONTAINER -->
-  <main class="flex-1 max-w-[1920px] w-full mx-auto p-3 md:p-4 space-y-4">
+  <main class="flex-1 max-w-[1920px] w-full mx-auto p-2 md:p-3 space-y-2.5">
 
     <!-- EMPTY WORKSPACE BANNER (Shown only when no tasks/employees are loaded yet) -->
     <div id="emptyWorkspaceBanner" class="surface-card rounded-2xl p-5 shadow-sm border-r-4 border-r-emerald-600 hidden">
@@ -1199,84 +1210,128 @@
 
 
     <!-- ==========================================
-         VIEW 0: EXCEL-STYLE EMPLOYEE PORTAL (میز کار من)
+         VIEW 0: EMPLOYEE DASHBOARD & WORKSPACE (داشبورد و میز کار من)
          ========================================== -->
-    <section id="view-my-portal" class="tab-view hidden space-y-2.5">
-      <!-- Compact Excel Ribbon Header: Profile + Sub-Tabs + Stats -->
-      <div class="surface-card rounded-xl p-2.5 shadow-sm flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2.5">
-          <div id="portalAvatarCircle" class="w-8 h-8 rounded-lg text-white flex items-center justify-center font-black text-sm shrink-0 bg-emerald-600">آ</div>
-          <div>
-            <div class="flex items-center gap-2">
-              <strong id="portalWelcomeTitle" class="font-extrabold text-xs md:text-sm">میز کار</strong>
-              <span id="portalRoleBadge" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold"></span>
-            </div>
+    <section id="view-my-portal" class="tab-view hidden space-y-2">
+      <!-- Ultra-Sleek Top Strip: Profile + Sub-Tabs + Compact KPIs -->
+      <div class="surface-card rounded-xl p-2 shadow-xs flex flex-wrap items-center justify-between gap-1.5">
+        <div class="flex items-center gap-2">
+          <div id="portalAvatarCircle" class="w-7 h-7 rounded-lg text-white flex items-center justify-center font-black text-xs shrink-0 bg-emerald-600">آ</div>
+          <div class="flex items-center gap-1.5">
+            <strong id="portalWelcomeTitle" class="font-extrabold text-xs">داشبورد</strong>
+            <span id="portalRoleBadge" class="hidden sm:inline-block text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold"></span>
           </div>
-          <div id="portalAdminPreviewWrapper" class="admin-only-el flex items-center gap-1 subtle-bg px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 text-xs mr-2">
-            <span class="font-bold muted-text text-[11px]">👁️ کاربر:</span>
-            <select id="portalMemberPreviewSelect" class="rounded px-1.5 py-0.5 text-xs font-extrabold"></select>
+          <div id="portalAdminPreviewWrapper" class="admin-only-el flex items-center gap-1 subtle-bg px-1.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600 text-[11px]">
+            <span class="font-bold muted-text text-[10px]">👁️</span>
+            <select id="portalMemberPreviewSelect" class="rounded px-1 py-0.5 text-[11px] font-extrabold"></select>
           </div>
         </div>
 
-        <!-- Clean Excel Sheet Sub-Tabs on Top -->
-        <div id="portalSubTabsWrapper" class="inline-flex rounded-xl border border-slate-300 dark:border-slate-600 p-0.5 subtle-bg">
-          <button type="button" data-portal-subtab="tasks" class="portal-subtab-btn brand-btn px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1">
-            <span>📋</span><span>۱. جدول وظایف من</span>
+        <!-- 4 Sub-Tabs: 1. داشبورد (Default) | 2. لیست تفصیلی | 3. تقویم | 4. گزارش‌ها -->
+        <div id="portalSubTabsWrapper" class="inline-flex rounded-lg border border-slate-300 dark:border-slate-600 p-0.5 subtle-bg">
+          <button type="button" data-portal-subtab="emp-dashboard" class="portal-subtab-btn brand-btn px-2.5 py-1 rounded-md text-xs font-extrabold flex items-center gap-1">
+            <span>⚡</span><span>داشبورد</span>
           </button>
-          <button type="button" data-portal-subtab="calendar" class="portal-subtab-btn px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1">
-            <span>🗓️</span><span>۲. تقویم من</span>
+          <button type="button" data-portal-subtab="tasks" class="portal-subtab-btn px-2.5 py-1 rounded-md text-xs font-extrabold flex items-center gap-1">
+            <span>📋</span><span>لیست تفصیلی</span>
           </button>
-          <button type="button" data-portal-subtab="reports" class="portal-subtab-btn px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1">
-            <span>📝</span><span>۳. گزارش‌ها و سوابق من</span>
+          <button type="button" data-portal-subtab="calendar" class="portal-subtab-btn px-2.5 py-1 rounded-md text-xs font-extrabold flex items-center gap-1">
+            <span>🗓️</span><span>تقویم</span>
+          </button>
+          <button type="button" data-portal-subtab="reports" class="portal-subtab-btn px-2.5 py-1 rounded-md text-xs font-extrabold flex items-center gap-1">
+            <span>📝</span><span>گزارش‌ها</span>
           </button>
         </div>
 
         <!-- Compact Inline KPI Badges -->
-        <div id="portalKpiGrid" class="flex flex-wrap items-center gap-1.5 text-xs"></div>
+        <div id="portalKpiGrid" class="flex flex-wrap items-center gap-1 text-[11px]"></div>
       </div>
 
-      <!-- SUB-TAB 1: EXCEL TASK TABLE + SINGLE-ROW QUICK ADD -->
-      <div id="portalSubViewTasks" class="space-y-2">
-        <!-- Single-Row Quick Adder (Just like Master Task Table) -->
-        <form id="formPortalQuickTask" class="surface-card rounded-xl p-2 shadow-sm flex flex-wrap items-center gap-1.5 text-xs">
-          <span class="font-extrabold px-1 text-emerald-700 dark:text-emerald-400">➕ کار جدید:</span>
-          <input type="text" id="portalQuickTaskTitle" required placeholder="عنوان وظیفه را بنویسید و Enter بزنید..." class="flex-1 min-w-[180px] rounded-lg px-2.5 py-1.5 font-bold" />
-          <input type="text" id="portalQuickTaskProject" placeholder="پروژه / بخش" class="w-36 rounded-lg px-2 py-1.5" />
-          <div class="inline-flex items-center gap-1 subtle-bg px-2 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
-            <span class="font-extrabold text-[11px] text-emerald-700 dark:text-emerald-400">ددلاین:</span>
-            <input type="text" id="portalQuickTaskDeadline" dir="ltr" placeholder="1405/08/18" class="w-24 rounded px-1.5 py-1 font-mono text-center font-bold" />
-            <button type="button" data-action="open-jalali-picker" data-target-input="portalQuickTaskDeadline" class="themed-btn px-1.5 py-1 rounded text-xs" title="انتخاب ددلاین از تقویم شمسی">🗓️</button>
+      <!-- SUB-TAB 0 (DEFAULT AFTER LOGIN): AT-A-GLANCE EMPLOYEE DASHBOARD (داشبورد سریع و خلوت) -->
+      <div id="portalSubViewEmpDashboard" class="space-y-2">
+        <!-- Compact Single-Row Quick Task Adder + Sort/Filter Controls -->
+        <form id="formEmpDashQuickTask" class="surface-card rounded-xl p-1.5 sm:p-2 shadow-xs flex flex-wrap items-center gap-1.5 text-xs">
+          <input type="text" id="empDashQuickTaskTitle" required placeholder="➕ عنوان کار جدید را بنویسید..." class="flex-1 min-w-[140px] rounded-lg px-2.5 py-1.5 font-bold text-xs" />
+          <div class="inline-flex items-center gap-1 subtle-bg px-1.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600 shrink-0" title="ددلاین (شمسی)">
+            <span class="text-[10px] muted-text font-bold hidden sm:inline">مهلت:</span>
+            <input type="text" id="empDashQuickTaskDeadline" dir="ltr" placeholder="1405/08/18" class="w-20 rounded px-1 py-0.5 font-mono text-center font-bold text-[11px]" />
+            <button type="button" data-action="open-jalali-picker" data-target-input="empDashQuickTaskDeadline" class="themed-btn px-1 py-0.5 rounded text-[11px]" title="انتخاب از تقویم شمسی">🗓️</button>
           </div>
-          <select id="portalQuickTaskPriority" class="rounded-lg px-2 py-1.5 font-bold">
+          <input type="text" id="empDashQuickTaskTime" dir="ltr" placeholder="00:00" title="زمان کارکرد اولیه (ساعت:دقیقه)" class="w-14 rounded-lg px-1.5 py-1.5 font-mono text-center font-bold text-[11px] shrink-0" />
+          <button type="submit" class="brand-btn px-3 py-1.5 rounded-lg font-extrabold text-xs shrink-0">+ افزودن</button>
+
+          <div class="flex items-center gap-1 mr-auto shrink-0">
+            <button type="button" id="btnEmpDashSortAdded" class="themed-btn px-2 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1" title="مرتب‌سازی بر اساس تاریخ اضافه شدن به لیست (پیش‌فرض)">
+              <span>🕒</span><span>ترتیب ثبت</span><span id="empDashSortAddedInd">▼</span>
+            </button>
+            <select id="empDashFilterStatus" class="rounded-lg px-2 py-1 font-bold text-[11px]">
+              <option value="all">همه کارها</option>
+              <option value="open">⏳ کارهای باز</option>
+              <option value="completed">✅ تکمیل شده</option>
+            </select>
+          </div>
+        </form>
+
+        <!-- Phone-Optimized 4-Column At-a-Glance Table (Only Task Name, Time, Deadline, Complete/Uncomplete) -->
+        <div class="surface-card rounded-xl shadow-xs overflow-hidden">
+          <div class="overflow-x-auto max-h-[76vh]">
+            <table class="excel-table" id="empDashboardTasksTable">
+              <thead>
+                <tr>
+                  <th data-empdash-sort="title" class="sortable-th">نام وظیفه <span class="empdash-sort-ind" data-ind="title"></span></th>
+                  <th data-empdash-sort="workedMinutes" class="sortable-th w-28 sm:w-36 text-center">زمان کارکرد <span class="empdash-sort-ind" data-ind="workedMinutes"></span></th>
+                  <th data-empdash-sort="deadline" class="sortable-th w-24 sm:w-32 text-center">ددلاین <span class="empdash-sort-ind" data-ind="deadline"></span></th>
+                  <th data-empdash-sort="status" class="sortable-th w-24 sm:w-28 text-center">وضعیت / اقدام <span class="empdash-sort-ind" data-ind="status"></span></th>
+                </tr>
+              </thead>
+              <tbody id="empDashboardTasksTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 1: REFINED DETAILED TASK LIST -->
+      <div id="portalSubViewTasks" class="hidden space-y-2">
+        <!-- Single-Row Quick Adder -->
+        <form id="formPortalQuickTask" class="surface-card rounded-xl p-2 shadow-xs flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="font-extrabold px-1 text-emerald-700 dark:text-emerald-400">➕ کار جدید:</span>
+          <input type="text" id="portalQuickTaskTitle" required placeholder="عنوان وظیفه را بنویسید و Enter بزنید..." class="flex-1 min-w-[160px] rounded-lg px-2.5 py-1 font-bold" />
+          <input type="text" id="portalQuickTaskProject" placeholder="پروژه / بخش" class="w-32 rounded-lg px-2 py-1" />
+          <div class="inline-flex items-center gap-1 subtle-bg px-1.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
+            <span class="font-extrabold text-[10px] text-emerald-700 dark:text-emerald-400">مهلت:</span>
+            <input type="text" id="portalQuickTaskDeadline" dir="ltr" placeholder="1405/08/18" class="w-20 rounded px-1 py-0.5 font-mono text-center font-bold" />
+            <button type="button" data-action="open-jalali-picker" data-target-input="portalQuickTaskDeadline" class="themed-btn px-1 py-0.5 rounded text-xs" title="انتخاب ددلاین از تقویم شمسی">🗓️</button>
+          </div>
+          <select id="portalQuickTaskPriority" class="rounded-lg px-2 py-1 font-bold">
             <option value="critical">🔥 فوری</option>
             <option value="high" selected>🟠 بالا</option>
             <option value="medium">🟡 متوسط</option>
             <option value="low">🟢 عادی</option>
           </select>
-          <button type="submit" class="brand-btn px-3 py-1.5 rounded-lg font-extrabold">+ ثبت</button>
-          <select id="portalFilterTaskStatus" class="rounded-lg px-2 py-1.5 font-bold mr-auto">
+          <button type="submit" class="brand-btn px-3 py-1 rounded-lg font-extrabold">+ ثبت</button>
+          <select id="portalFilterTaskStatus" class="rounded-lg px-2 py-1 font-bold mr-auto">
             <option value="all">همه وظایف من</option>
             <option value="open">⏳ کارهای باز</option>
             <option value="completed">✅ تکمیل شده</option>
           </select>
         </form>
 
-        <!-- Clean Excel Table for Employee Tasks -->
-        <div class="surface-card rounded-xl shadow-sm overflow-hidden">
+        <!-- Refined Detailed Table for Employee Tasks (With Renamed Columns & Sortable Headers) -->
+        <div class="surface-card rounded-xl shadow-xs overflow-hidden">
           <div class="overflow-x-auto max-h-[72vh]">
             <table class="excel-table" id="portalTasksTable">
               <thead>
                 <tr>
-                  <th class="w-16">کد</th>
-                  <th class="min-w-[210px]">عنوان وظیفه</th>
-                  <th class="w-32">پروژه</th>
-                  <th class="w-24">اولویت</th>
-                  <th class="w-32">وضعیت</th>
-                  <th class="w-28">پیشرفت</th>
-                  <th class="w-32">ساعت کارکرد</th>
-                  <th class="w-32">ددلاین</th>
-                  <th class="min-w-[240px]">یادداشت سریع / آخرین گزارش</th>
-                  <th class="w-24 text-center">تکمیل</th>
+                  <th data-ptask-sort="id" class="sortable-th w-16">شناسه <span class="ptask-sort-ind" data-ind="id"></span></th>
+                  <th data-ptask-sort="title" class="sortable-th min-w-[190px]">شرح و عنوان فعالیت <span class="ptask-sort-ind" data-ind="title"></span></th>
+                  <th data-ptask-sort="project" class="sortable-th w-28">بخش / پروژه <span class="ptask-sort-ind" data-ind="project"></span></th>
+                  <th data-ptask-sort="priority" class="sortable-th w-20">اهمیت <span class="ptask-sort-ind" data-ind="priority"></span></th>
+                  <th data-ptask-sort="status" class="sortable-th w-28">مرحله اجرا <span class="ptask-sort-ind" data-ind="status"></span></th>
+                  <th data-ptask-sort="progress" class="sortable-th w-24">میزان پیشرفت <span class="ptask-sort-ind" data-ind="progress"></span></th>
+                  <th data-ptask-sort="workedMinutes" class="sortable-th w-28">زمان ثبت‌شده <span class="ptask-sort-ind" data-ind="workedMinutes"></span></th>
+                  <th data-ptask-sort="deadline" class="sortable-th w-28">مهلت تحویل <span class="ptask-sort-ind" data-ind="deadline"></span></th>
+                  <th class="min-w-[210px]">گزارش و یادداشت روزانه</th>
+                  <th data-ptask-sort="status" class="sortable-th w-28 text-center">اقدام سریع <span class="ptask-sort-ind" data-ind="action"></span></th>
                 </tr>
               </thead>
               <tbody id="portalTasksTableBody"></tbody>
@@ -2633,7 +2688,53 @@
     let currentUserSession = null;
     let adminOriginalSession = null;
     let portalPreviewEmpId = '';
-    let activePortalSubTab = 'tasks';
+    let activePortalSubTab = 'emp-dashboard';
+    let empDashSort = { col: 'added', dir: 'desc' };
+    let portalTaskSort = { col: 'added', dir: 'desc' };
+
+    function getTaskAddedOrderValue(t) {
+      if (!t) return 0;
+      if (t._createdClientTs && Number(t._createdClientTs) > 0) {
+        return Number(t._createdClientTs);
+      }
+      const m = String(t.id || '').match(/(\d+)/);
+      const seqNum = m ? parseInt(m[1], 10) : 0;
+      const startParts = parseJalaliString(t.startDate || '1405/08/01');
+      const startAbs = jalaliToAbsoluteDays(startParts.jy, startParts.jm, startParts.jd);
+      return (startAbs * 100000) + seqNum;
+    }
+
+    function sortEmployeeTasksList(list, sortState) {
+      const prioRank = { critical: 4, high: 3, medium: 2, low: 1 };
+      const statusRank = { delayed: 4, 'in-progress': 3, pending: 2, completed: 1 };
+      const mult = sortState.dir === 'asc' ? 1 : -1;
+      return [...list].sort((a, b) => {
+        let cmp = 0;
+        if (sortState.col === 'added') {
+          cmp = getTaskAddedOrderValue(a) - getTaskAddedOrderValue(b);
+        } else if (sortState.col === 'title') {
+          cmp = (a.title || '').localeCompare(b.title || '', 'fa');
+        } else if (sortState.col === 'workedMinutes') {
+          cmp = getTaskTotalMinutes(a) - getTaskTotalMinutes(b);
+        } else if (sortState.col === 'deadline') {
+          cmp = compareJalaliStrings(a.deadline, b.deadline);
+        } else if (sortState.col === 'status') {
+          cmp = (statusRank[getEffectiveTaskStatus(a)] || 0) - (statusRank[getEffectiveTaskStatus(b)] || 0);
+        } else if (sortState.col === 'project') {
+          cmp = (a.project || '').localeCompare(b.project || '', 'fa');
+        } else if (sortState.col === 'priority') {
+          cmp = (prioRank[a.priority] || 0) - (prioRank[b.priority] || 0);
+        } else if (sortState.col === 'progress') {
+          cmp = (Number(a.progress) || 0) - (Number(b.progress) || 0);
+        } else {
+          cmp = (a.id || '').localeCompare(b.id || '', 'fa');
+        }
+        if (cmp === 0) {
+          cmp = getTaskAddedOrderValue(b) - getTaskAddedOrderValue(a);
+        }
+        return cmp * mult;
+      });
+    }
     let cloudSyncInProgress = false;
     let activeCloudSyncPromise = null;
     let pendingCloudPushAfterCurrent = false;
@@ -3453,6 +3554,7 @@
             appState.tasks[idx] = Object.assign({}, cur, incNewer ? inc : {}, {
               id: inc.id || cur.id,
               _uid: cur._uid || inc._uid,
+              _createdClientTs: Number(cur._createdClientTs || inc._createdClientTs) || 0,
               progress: prog,
               status: statusVal,
               workedMinutes: workedMins,
@@ -3668,19 +3770,21 @@
 
     function updateSyncSafetyUI() {
       const bar = document.getElementById('syncSafetyNoticeBar');
-      const countBadge = document.getElementById('syncQueueCounterBadge');
-      if (!bar) return;
-      if (cloudSyncInProgress || hasUnsavedCloudChanges) {
-        bar.classList.remove('hidden');
-        bar.classList.add('flex');
-        if (countBadge) {
-          countBadge.textContent = cloudSyncInProgress
-            ? (pendingCloudPushAfterCurrent ? 'در حال ارسال + ۱ در صف' : 'در حال ارسال به سرور...')
-            : 'در صف همگام‌سازی...';
-        }
-      } else {
+      if (bar) {
         bar.classList.add('hidden');
         bar.classList.remove('flex');
+      }
+      const iconEl = document.getElementById('cloudSyncIcon');
+      const badgeEl = document.getElementById('cloudSyncStatusBadge');
+      if (cloudSyncInProgress) {
+        if (iconEl) iconEl.classList.add('animate-spin');
+        if (badgeEl) badgeEl.textContent = pendingCloudPushAfterCurrent ? 'همگام‌سازی (+۱)...' : 'در حال همگام‌سازی...';
+      } else if (hasUnsavedCloudChanges) {
+        if (iconEl) iconEl.classList.remove('animate-spin');
+        if (badgeEl) badgeEl.textContent = 'در صف همگام‌سازی';
+      } else {
+        if (iconEl) iconEl.classList.remove('animate-spin');
+        if (badgeEl) badgeEl.textContent = 'همگام ✓';
       }
     }
 
@@ -4327,7 +4431,7 @@
             </td>
             <td class="text-center whitespace-nowrap">
               <div class="inline-flex items-center gap-1">
-                ${t.status !== 'completed' ? `<button data-action="complete-task" data-task-id="${t.id}" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه">تکمیل</button>` : `<button data-action="uncomplete-task" data-task-id="${t.id}" class="px-2 py-1 rounded bg-emerald-500/20 hover:bg-amber-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold" title="کلیک جهت بازگشت به وضعیت قبلی">تکمیل شده</button>`}
+                ${t.status !== 'completed' ? `<button data-action="complete-task" data-task-id="${t.id}" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه">تکمیل</button>` : `<button data-action="uncomplete-task" data-task-id="${t.id}" class="px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`}
                 ${canCurrentUserEditTasks() ? `<button data-action="edit-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs" title="ویرایش کامل">✏️</button>` : ''}
                 ${canCurrentUserDelete() ? `<button data-action="delete-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف">🗑️</button>` : ""}
               </div>
@@ -4654,7 +4758,7 @@
                           <span class="js-prog-label text-[10px] font-bold pointer-events-none">${toPersianDigits(t.progress)}٪</span>
                         </div>
                         <button data-action="open-task-logs" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="سوابق گزارش">📚 (${toPersianDigits((t.logs || []).length)})</button>
-                        ${t.status !== 'completed' ? `<button data-action="complete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه">تکمیل</button>` : `<button data-action="uncomplete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-amber-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold" title="کلیک جهت بازگشت به وضعیت قبلی">تکمیل شده</button>`}
+                        ${t.status !== 'completed' ? `<button data-action="complete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه">تکمیل</button>` : `<button data-action="uncomplete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`}
                         <button data-action="shift-deadline" data-task-id="${t.id}" data-days="1" class="themed-btn px-2 py-1 rounded text-[10px] font-bold">+۱ روز</button>
                         ${canCurrentUserEditTasks() ? `<button data-action="edit-task" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold">ویرایش</button>` : ''}
                         ${canCurrentUserDelete() ? `<button data-action="delete-task" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold hover:text-rose-500" title="حذف وظیفه">🗑️ حذف</button>` : ""}
@@ -5167,8 +5271,9 @@
     // VIEW 0: PERSONAL EMPLOYEE PORTAL (میز کار و کارنمای اختصاصی فرد)
     // -------------------------------------------------------------------------
     function switchPortalSubTab(subTab) {
-      activePortalSubTab = subTab || 'tasks';
+      activePortalSubTab = subTab || 'emp-dashboard';
       const map = {
+        'emp-dashboard': 'portalSubViewEmpDashboard',
         tasks: 'portalSubViewTasks',
         calendar: 'portalSubViewCalendar',
         reports: 'portalSubViewReports'
@@ -5182,11 +5287,17 @@
       });
       document.querySelectorAll('.portal-subtab-btn').forEach(btn => {
         if (btn.getAttribute('data-portal-subtab') === activePortalSubTab) {
-          btn.className = 'portal-subtab-btn brand-btn px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1';
+          btn.className = 'portal-subtab-btn brand-btn px-2.5 py-1 rounded-md text-xs font-extrabold flex items-center gap-1';
         } else {
-          btn.className = 'portal-subtab-btn px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1 hover:opacity-80';
+          btn.className = 'portal-subtab-btn px-2.5 py-1 rounded-md text-xs font-extrabold flex items-center gap-1 hover:opacity-80';
         }
       });
+    }
+
+    function formatShortSolarDeadline(str) {
+      if (!str) return '-';
+      const { jy, jm, jd } = parseJalaliString(str);
+      return `${toPersianDigits(jd)} ${PERSIAN_MONTHS[jm - 1]}`;
     }
 
     function renderMyPortalView() {
@@ -5207,10 +5318,11 @@
       const avatarEl = document.getElementById('portalAvatarCircle');
       const titleEl = document.getElementById('portalWelcomeTitle');
       const roleEl = document.getElementById('portalRoleBadge');
-      const deadlineInput = document.getElementById('portalQuickTaskDeadline');
-      if (deadlineInput && !deadlineInput.value) {
-        deadlineInput.value = appState.settings.currentSimDate || '1405/08/17';
-      }
+      const simDateVal = appState.settings.currentSimDate || '1405/08/17';
+      ['portalQuickTaskDeadline', 'empDashQuickTaskDeadline'].forEach(inpId => {
+        const dInp = document.getElementById(inpId);
+        if (dInp && !dInp.value) dInp.value = simDateVal;
+      });
 
       if (avatarEl) {
         avatarEl.style.background = emp.avatarColor || '#107c41';
@@ -5228,7 +5340,7 @@
         if (t.assigneeId === emp.id) return true;
         if (emp.name && emp.name !== 'تعیین‌نشده' && t.coAssignee && (t.coAssignee.includes(emp.name) || findEmployeeIdByName(t.coAssignee) === emp.id)) return true;
         return false;
-      }).sort((a, b) => compareJalaliStrings(a.deadline, b.deadline));
+      });
 
       const openTasks = myTasksAll.filter(t => getEffectiveTaskStatus(t) !== 'completed');
       const completedTasks = myTasksAll.filter(t => getEffectiveTaskStatus(t) === 'completed');
@@ -5238,10 +5350,10 @@
       const kpiGrid = document.getElementById('portalKpiGrid');
       if (kpiGrid) {
         kpiGrid.innerHTML = `
-          <span class="px-2.5 py-1 rounded-lg subtle-bg border border-amber-500/40 font-bold">⏳ باز: <strong class="text-amber-500">${toPersianDigits(openTasks.length)}</strong></span>
-          <span class="px-2.5 py-1 rounded-lg subtle-bg border border-emerald-500/40 font-bold">✅ تکمیل: <strong class="text-emerald-600 dark:text-emerald-400">${toPersianDigits(completedTasks.length)}</strong></span>
-          ${delayedTasks.length > 0 ? `<span class="px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-500 font-extrabold">🚨 تاخیر: ${toPersianDigits(delayedTasks.length)}</span>` : ''}
-          <span class="px-2.5 py-1 rounded-lg subtle-bg border border-sky-500/40 font-mono font-extrabold text-sky-600 dark:text-sky-400">⏱️ ${formatMinutesToHHMM(wStats.totalMinutes)}</span>
+          <span class="px-2 py-0.5 rounded-md subtle-bg border border-amber-500/40 font-bold">⏳ باز: <strong class="text-amber-500">${toPersianDigits(openTasks.length)}</strong></span>
+          <span class="px-2 py-0.5 rounded-md subtle-bg border border-emerald-500/40 font-bold">✅ تکمیل: <strong class="text-emerald-600 dark:text-emerald-400">${toPersianDigits(completedTasks.length)}</strong></span>
+          ${delayedTasks.length > 0 ? `<span class="px-2 py-0.5 rounded-md bg-rose-500/15 border border-rose-500/40 text-rose-500 font-extrabold">🚨 تاخیر: ${toPersianDigits(delayedTasks.length)}</span>` : ''}
+          <span class="px-2 py-0.5 rounded-md subtle-bg border border-sky-500/40 font-mono font-extrabold text-sky-600 dark:text-sky-400">⏱️ ${formatMinutesToHHMM(wStats.totalMinutes)}</span>
         `;
       }
 
@@ -5254,13 +5366,85 @@
         noteTaskSelect.value = curVal;
       }
 
-      // 1. Render Excel Table of Personal Tasks
-      const statusFilter = document.getElementById('portalFilterTaskStatus')?.value || 'all';
-      const filteredMyTasks = myTasksAll.filter(t => {
-        if (statusFilter === 'open') return t.status !== 'completed';
-        if (statusFilter === 'completed') return t.status === 'completed';
-        return true;
+      // 0. Render NEW Employee At-a-Glance Dashboard Table (4 Sortable Columns: Task Name, Time, Deadline, Complete/Uncomplete)
+      document.querySelectorAll('.empdash-sort-ind').forEach(ind => {
+        const col = ind.getAttribute('data-ind');
+        ind.textContent = col === empDashSort.col ? (empDashSort.dir === 'asc' ? '▲' : '▼') : '';
       });
+      const addedIndEl = document.getElementById('empDashSortAddedInd');
+      const addedBtnEl = document.getElementById('btnEmpDashSortAdded');
+      if (addedIndEl) {
+        addedIndEl.textContent = empDashSort.col === 'added' ? (empDashSort.dir === 'asc' ? '▲' : '▼') : '';
+      }
+      if (addedBtnEl) {
+        addedBtnEl.className = empDashSort.col === 'added'
+          ? 'brand-btn px-2 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1'
+          : 'themed-btn px-2 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1';
+      }
+
+      const empDashStatusFilter = document.getElementById('empDashFilterStatus')?.value || 'all';
+      const empDashFiltered = sortEmployeeTasksList(
+        myTasksAll.filter(t => {
+          if (empDashStatusFilter === 'open') return t.status !== 'completed';
+          if (empDashStatusFilter === 'completed') return t.status === 'completed';
+          return true;
+        }),
+        empDashSort
+      );
+
+      const empDashTbody = document.getElementById('empDashboardTasksTableBody');
+      if (empDashTbody) {
+        if (empDashFiltered.length === 0) {
+          empDashTbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 muted-text font-bold text-xs">هیچ وظیفه‌ای در این بخش نیست. از کادر بالا وظیفه جدید اضافه کنید.</td></tr>`;
+        } else {
+          empDashTbody.innerHTML = empDashFiltered.map(t => {
+            const eff = getEffectiveTaskStatus(t);
+            const rowClass = eff === 'completed' ? 'row-completed' : eff === 'delayed' ? 'row-delayed' : '';
+            return `
+              <tr class="${rowClass}">
+                <td>
+                  <div data-action="view-task-detail" data-task-id="${t.id}" class="cursor-pointer group flex items-center justify-between gap-1" title="مشاهده جزئیات کامل وظیفه">
+                    <span class="font-extrabold text-xs group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors ${t.status === 'completed' ? 'line-through opacity-70' : ''}">${t.title}</span>
+                    <span class="text-[10px] muted-text font-mono shrink-0 hidden sm:inline">${t.id}</span>
+                  </div>
+                </td>
+                <td class="text-center whitespace-nowrap">
+                  <div class="inline-flex items-center justify-center gap-1">
+                    <input type="text" data-action="inline-worked-time" data-task-id="${t.id}" value="${formatMinutesToHHMM(getTaskTotalMinutes(t), false)}" dir="ltr" placeholder="00:00" class="w-14 text-center font-mono text-[11px] font-extrabold rounded px-1 py-0.5" title="زمان کارکرد (ساعت:دقیقه)" />
+                    <button type="button" data-action="add-30m-task" data-task-id="${t.id}" class="themed-btn px-1 py-0.5 rounded text-[9px] font-bold" title="افزودن ۳۰ دقیقه">+۳۰د</button>
+                  </div>
+                </td>
+                <td class="text-center whitespace-nowrap">
+                  <div class="font-extrabold text-[11px] ${eff === 'delayed' ? 'text-rose-500' : ''}">${formatShortSolarDeadline(t.deadline)}</div>
+                  <div class="text-[9px] muted-text font-mono">${toPersianDigits(t.deadline)}</div>
+                </td>
+                <td class="text-center whitespace-nowrap">
+                  ${t.status !== 'completed'
+                    ? `<button type="button" data-action="complete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-extrabold shadow-xs">✓ تکمیل</button>`
+                    : `<button type="button" data-action="uncomplete-task" data-task-id="${t.id}" class="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل و بازگشت به حالت قبل">↩️ لغو تکمیل</button>`
+                  }
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      // 1. Render Refined Detailed Table of Personal Tasks
+      document.querySelectorAll('.ptask-sort-ind').forEach(ind => {
+        const col = ind.getAttribute('data-ind');
+        ind.textContent = col === portalTaskSort.col ? (portalTaskSort.dir === 'asc' ? '▲' : '▼') : '';
+      });
+
+      const statusFilter = document.getElementById('portalFilterTaskStatus')?.value || 'all';
+      const filteredMyTasks = sortEmployeeTasksList(
+        myTasksAll.filter(t => {
+          if (statusFilter === 'open') return t.status !== 'completed';
+          if (statusFilter === 'completed') return t.status === 'completed';
+          return true;
+        }),
+        portalTaskSort
+      );
 
       const prioBadge = {
         critical: '<span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-600 dark:text-rose-300 font-extrabold text-[10px]">🔥 فوری</span>',
@@ -5272,63 +5456,63 @@
       const tasksTbody = document.getElementById('portalTasksTableBody');
       if (tasksTbody) {
         if (filteredMyTasks.length === 0) {
-          tasksTbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 muted-text font-bold">هیچ وظیفه‌ای در این بخش نیست.</td></tr>`;
+          tasksTbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 muted-text font-bold">هیچ وظیفه‌ای در این بخش نیست.</td></tr>`;
         } else {
           tasksTbody.innerHTML = filteredMyTasks.map(t => {
             const eff = getEffectiveTaskStatus(t);
             const rowClass = eff === 'completed' ? 'row-completed' : eff === 'delayed' ? 'row-delayed' : eff === 'in-progress' ? 'row-in-progress' : '';
             return `
               <tr class="${rowClass}">
-                <td data-label="کد:" class="font-mono text-[11px] font-bold muted-text">
+                <td data-label="شناسه:" class="font-mono text-[11px] font-bold muted-text">
                   <button type="button" data-action="view-task-detail" data-task-id="${t.id}" class="hover:underline text-emerald-700 dark:text-emerald-400 font-extrabold" title="مشاهده شرح کامل وظیفه">${t.id} 🔍</button>
                 </td>
                 <td class="mob-title-row">
                   <div data-action="view-task-detail" data-task-id="${t.id}" class="cursor-pointer group text-right" title="برای مشاهده شرح کامل و جزئیات کلیک کنید">
-                    <div class="font-extrabold text-xs md:text-sm group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors ${t.status === 'completed' ? 'line-through opacity-75' : ''}">${t.title}</div>
-                    ${t.description ? `<div class="text-[11px] muted-text mt-1 leading-relaxed whitespace-pre-line">${t.description}</div>` : `<div class="text-[10px] text-sky-600 dark:text-sky-400 mt-0.5">🔍 مشاهده جزئیات کامل</div>`}
+                    <div class="font-extrabold text-xs group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors ${t.status === 'completed' ? 'line-through opacity-75' : ''}">${t.title}</div>
+                    ${t.description ? `<div class="text-[11px] muted-text mt-0.5 leading-snug line-clamp-1">${t.description}</div>` : ''}
                   </div>
                 </td>
-                <td data-label="پروژه:" class="text-xs font-semibold">${t.project || '-'}</td>
-                <td data-label="اولویت:">${prioBadge[t.priority] || t.priority}</td>
-                <td data-label="وضعیت:">
-                  <select data-action="inline-status" data-task-id="${t.id}" class="text-xs font-bold rounded px-1.5 py-1">
+                <td data-label="بخش / پروژه:" class="text-xs font-semibold">${t.project || '-'}</td>
+                <td data-label="اهمیت:">${prioBadge[t.priority] || t.priority}</td>
+                <td data-label="مرحله اجرا:">
+                  <select data-action="inline-status" data-task-id="${t.id}" class="text-xs font-bold rounded px-1.5 py-0.5">
                     <option value="in-progress" ${t.status === 'in-progress' ? 'selected' : ''}>🟡 در حال انجام</option>
                     <option value="pending" ${t.status === 'pending' ? 'selected' : ''}>🔵 در انتظار</option>
                     <option value="completed" ${t.status === 'completed' ? 'selected' : ''}>🟢 تکمیل شده</option>
                     <option value="delayed" ${t.status === 'delayed' ? 'selected' : ''}>🔴 تاخیر</option>
                   </select>
                 </td>
-                <td data-label="پیشرفت:">
-                  <div data-action="drag-task-progress" data-task-id="${t.id}" class="flex items-center gap-1.5 cursor-ew-resize select-none py-1 px-1 rounded hover:bg-slate-500/10" title="بکشید">
-                    <div class="w-14 h-2.5 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden pointer-events-none">
+                <td data-label="میزان پیشرفت:">
+                  <div data-action="drag-task-progress" data-task-id="${t.id}" class="flex items-center gap-1 cursor-ew-resize select-none py-0.5 px-1 rounded hover:bg-slate-500/10" title="بکشید">
+                    <div class="w-12 h-2 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden pointer-events-none">
                       <div class="js-prog-fill h-full ${eff === 'completed' ? 'bg-emerald-500' : 'bg-sky-500'}" style="width:${t.progress}%"></div>
                     </div>
-                    <span class="js-prog-label text-[11px] font-bold w-7 text-left pointer-events-none">${toPersianDigits(t.progress)}٪</span>
+                    <span class="js-prog-label text-[10px] font-bold w-7 text-left pointer-events-none">${toPersianDigits(t.progress)}٪</span>
                   </div>
                 </td>
-                <td data-label="کارکرد:" class="whitespace-nowrap">
+                <td data-label="زمان ثبت‌شده:" class="whitespace-nowrap">
                   <div class="flex items-center gap-1">
                     <input type="text" data-action="inline-worked-time" data-task-id="${t.id}" value="${formatMinutesToHHMM(getTaskTotalMinutes(t), false)}" dir="ltr" placeholder="00:00" class="w-14 text-center font-mono text-xs font-extrabold rounded px-1 py-0.5" />
                     <button type="button" data-action="add-30m-task" data-task-id="${t.id}" class="themed-btn px-1.5 py-0.5 rounded text-[10px] font-bold">+۳۰د</button>
                   </div>
                 </td>
-                <td data-label="ددلاین:" class="whitespace-nowrap">
+                <td data-label="مهلت تحویل:" class="whitespace-nowrap">
                   <div class="text-left">
                     <div class="font-bold text-xs ${eff === 'delayed' ? 'text-rose-500' : ''}">${formatJalaliHuman(t.deadline)}</div>
                     <div class="text-[10px] muted-text font-mono">${toPersianDigits(t.deadline)}</div>
                   </div>
                 </td>
-                <td data-label="یادداشت:" class="mob-full-row">
+                <td data-label="گزارش:" class="mob-full-row">
                   <div class="flex items-center gap-1 w-full">
-                    <input type="text" data-portal-note-input="${t.id}" placeholder="${t.lastNote ? t.lastNote.replace(/"/g, '&quot;') : 'یادداشت بنویسید...'}" class="flex-1 min-w-[110px] rounded px-2 py-1 text-xs" />
-                    <button type="button" data-action="portal-save-inline-note" data-task-id="${t.id}" class="brand-btn px-2 py-1 rounded text-[10px] font-bold shrink-0" title="ثبت یادداشت">ثبت</button>
-                    <button type="button" data-action="open-task-logs" data-task-id="${t.id}" class="themed-btn px-1.5 py-1 rounded text-[10px] font-bold shrink-0" title="سوابق گزارش">📚${toPersianDigits((t.logs || []).length)}</button>
+                    <input type="text" data-portal-note-input="${t.id}" placeholder="${t.lastNote ? t.lastNote.replace(/"/g, '&quot;') : 'یادداشت بنویسید...'}" class="flex-1 min-w-[100px] rounded px-2 py-0.5 text-xs" />
+                    <button type="button" data-action="portal-save-inline-note" data-task-id="${t.id}" class="brand-btn px-2 py-0.5 rounded text-[10px] font-bold shrink-0" title="ثبت یادداشت">ثبت</button>
+                    <button type="button" data-action="open-task-logs" data-task-id="${t.id}" class="themed-btn px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0" title="سوابق گزارش">📚${toPersianDigits((t.logs || []).length)}</button>
                   </div>
                 </td>
-                <td data-label="وضعیت تکمیل:" class="mob-full-row text-center whitespace-nowrap">
+                <td data-label="اقدام سریع:" class="mob-full-row text-center whitespace-nowrap">
                   ${t.status !== 'completed'
-                    ? `<button type="button" data-action="complete-task" data-task-id="${t.id}" class="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs">تکمیل</button>`
-                    : `<button type="button" data-action="uncomplete-task" data-task-id="${t.id}" class="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-amber-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 text-xs font-extrabold" title="کلیک جهت بازگشت به وضعیت قبلی">تکمیل شده</button>`
+                    ? `<button type="button" data-action="complete-task" data-task-id="${t.id}" class="w-full sm:w-auto px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs">✓ تکمیل</button>`
+                    : `<button type="button" data-action="uncomplete-task" data-task-id="${t.id}" class="w-full sm:w-auto px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[11px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`
                   }
                 </td>
               </tr>
@@ -5903,6 +6087,8 @@
               token: data.user.token || ''
             };
             portalPreviewEmpId = currentUserSession.employeeId || '';
+            activePortalSubTab = 'emp-dashboard';
+            empDashSort = { col: 'added', dir: 'desc' };
             try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUserSession)); } catch (e) {}
 
             if (data.state) {
@@ -8501,6 +8687,96 @@
       });
 
       document.getElementById('portalFilterTaskStatus').addEventListener('change', renderMyPortalView);
+      document.getElementById('empDashFilterStatus').addEventListener('change', renderMyPortalView);
+
+      document.getElementById('btnEmpDashSortAdded').addEventListener('click', () => {
+        if (empDashSort.col === 'added') {
+          empDashSort.dir = empDashSort.dir === 'desc' ? 'asc' : 'desc';
+        } else {
+          empDashSort.col = 'added';
+          empDashSort.dir = 'desc';
+        }
+        renderMyPortalView();
+      });
+
+      document.querySelectorAll('[data-empdash-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.getAttribute('data-empdash-sort');
+          if (empDashSort.col === col) {
+            if (empDashSort.dir === 'asc') {
+              empDashSort.dir = 'desc';
+            } else {
+              empDashSort.col = 'added';
+              empDashSort.dir = 'desc';
+            }
+          } else {
+            empDashSort.col = col;
+            empDashSort.dir = 'asc';
+          }
+          renderMyPortalView();
+        });
+      });
+
+      document.querySelectorAll('[data-ptask-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.getAttribute('data-ptask-sort');
+          if (portalTaskSort.col === col) {
+            portalTaskSort.dir = portalTaskSort.dir === 'asc' ? 'desc' : 'asc';
+          } else {
+            portalTaskSort.col = col;
+            portalTaskSort.dir = 'asc';
+          }
+          renderMyPortalView();
+        });
+      });
+
+      document.getElementById('formEmpDashQuickTask').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('empDashQuickTaskTitle').value.trim();
+        if (!title) return;
+        const empId = getCurrentUserEmployeeId();
+        const emp = getEmployeeById(empId);
+        const deadline = toEnglishDigits(document.getElementById('empDashQuickTaskDeadline').value.trim()) || appState.settings.currentSimDate;
+        const workedRaw = document.getElementById('empDashQuickTaskTime').value.trim();
+        const workedMinutes = parseDurationToMinutes(workedRaw);
+        const newId = generateNextTaskId();
+
+        pushUndoSnapshot();
+        appState.tasks.unshift({
+          id: newId,
+          _uid: generateUniqueUid('tsk'),
+          _updatedAt: Date.now(),
+          _createdClientTs: Date.now(),
+          _createdByRole: isAdminUser() ? 'admin' : 'employee',
+          title,
+          assigneeId: empId,
+          coAssignee: '',
+          project: 'عمومی',
+          category: 'اجرایی',
+          priority: 'high',
+          status: 'in-progress',
+          progress: 10,
+          workedMinutes,
+          workedTime: formatMinutesToHHMM(workedMinutes, false),
+          startDate: appState.settings.currentSimDate,
+          deadline,
+          description: '',
+          lastNote: `ثبت سریع در داشبورد توسط ${emp.name}`,
+          logs: [{
+            date: appState.settings.currentSimDate,
+            time: new Date().toTimeString().slice(0, 5),
+            workedMinutes,
+            user: emp.name,
+            note: `ثبت وظیفه جدید در داشبورد شخصی`
+          }]
+        });
+        recordAuditLog('task', `ثبت سریع وظیفه [${newId}] «${title}» در داشبورد توسط ${emp.name}`);
+        document.getElementById('empDashQuickTaskTitle').value = '';
+        document.getElementById('empDashQuickTaskTime').value = '';
+        empDashSort = { col: 'added', dir: 'desc' };
+        saveAppState(true, false);
+        renderAll();
+      });
 
       document.getElementById('btnPortalCalPrevWeek').addEventListener('click', () => {
         const nextStr = addDaysToJalaliString(formatJalaliString(calendarState.year, calendarState.month, calendarState.day), -7);
@@ -8922,7 +9198,7 @@
           try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUserSession)); } catch (err) {}
           portalPreviewEmpId = resolvedEmpId;
           selectedEmployeeId = resolvedEmpId;
-          activePortalSubTab = 'tasks';
+          activePortalSubTab = 'emp-dashboard';
           activeTab = isTargetAdm ? 'dashboard' : 'my-portal';
           renderAll();
           switchTab(activeTab);
