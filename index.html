@@ -295,10 +295,13 @@
       header#mainTopHeader h1 {
         font-size: 12.5px;
       }
-      /* Hide working date picker bar & role tag on mobile so top bar fits in a single sleek line */
-      #topWorkingDateBar,
+      /* Keep live yellow date visible on mobile while hiding role tag so top bar fits sleekly */
       #headerUserRoleTag {
         display: none !important;
+      }
+      #topWorkingDateBar {
+        padding: 2px 6px !important;
+        font-size: 10px !important;
       }
       body.non-admin-mode #topQuickLeftButtons {
         display: none !important;
@@ -427,13 +430,12 @@
 
       <!-- Left Cluster: Date/Undo + Sync Status Button + Theme/Exports + User & Logout -->
       <div class="flex items-center gap-1 shrink-0 mr-auto">
-        <!-- Working Date Picker & Undo/Redo Controls (Compact Single-Line) -->
-        <div id="topWorkingDateBar" class="hidden md:flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded-md border border-white/15 text-[11px] text-white shrink-0">
-          <span id="liveTodayBadge" class="font-bold text-amber-300 text-[11px] hidden xl:inline whitespace-nowrap">پنجشنبه ۷ آبان ۱۴۰۵</span>
-          <input type="text" id="simDateInput" value="1405/08/07" dir="ltr" title="تغییر تاریخ کاری (YYYY/MM/DD)" class="w-20 text-center font-mono text-[11px] rounded px-1 py-0.5" />
-          <button id="btnSyncToToday" class="px-1.5 py-0.5 rounded bg-emerald-500/30 hover:bg-emerald-500/50 border border-emerald-300/40 text-white font-bold flex items-center gap-0.5 whitespace-nowrap" title="همگام‌سازی با تاریخ واقعی امروز">
-            <span>🔄</span><span class="hidden lg:inline">امروز</span>
-          </button>
+        <!-- Live Current Date (Yellow Text, Read-Only) & Undo/Redo Controls -->
+        <div id="topWorkingDateBar" class="flex items-center gap-1.5 bg-black/25 px-2.5 py-1 rounded-md border border-amber-400/30 text-[11px] text-amber-300 shrink-0" title="تاریخ روز سامانه (همواره به روز)">
+          <span>📅</span>
+          <span id="liveTodayBadge" class="font-extrabold text-amber-300 text-[11px] whitespace-nowrap select-none">پنجشنبه ۷ آبان ۱۴۰۵</span>
+          <input type="hidden" id="simDateInput" value="1405/08/07" dir="ltr" readonly />
+          <button id="btnSyncToToday" type="button" class="hidden" aria-hidden="true" tabindex="-1">امروز</button>
           <button id="btnUndo" disabled class="admin-only-el px-1.5 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-40 text-white font-bold flex items-center" title="Undo آخرین تغییر (Ctrl+Z)">
             <span>↪️</span><span class="sr-only">Undo</span>
           </button>
@@ -501,6 +503,7 @@
         </button>
         <button data-tab="projects" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
           <span>🚀</span><span>پروژه‌ها</span>
+          <span id="navBadgeProjects" class="bg-purple-600 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
         </button>
         <button data-tab="calculator" class="nav-tab-btn px-2.5 py-1.5 text-xs flex items-center gap-1 whitespace-nowrap">
           <span>🧮</span><span>ماشین‌حساب</span>
@@ -637,8 +640,11 @@
       <!-- Quick Inline Task Adder Bar -->
       <form id="formQuickInlineTask" class="surface-card rounded-xl p-2.5 shadow-sm flex flex-wrap items-center gap-2 text-xs">
         <span class="font-extrabold px-1">⚡ ثبت سریع وظیفه:</span>
-        <input type="text" id="inlineTaskTitle" required placeholder="عنوان وظیفه جدید را بنویسید و Enter بزنید..." class="flex-1 min-w-[200px] rounded-lg px-3 py-1.5" />
-        <select id="inlineTaskAssignee" class="rounded-lg px-2.5 py-1.5 min-w-[130px]"></select>
+        <input type="text" id="inlineTaskTitle" required placeholder="عنوان وظیفه جدید را بنویسید و Enter بزنید..." class="flex-1 min-w-[180px] rounded-lg px-3 py-1.5" />
+        <select id="inlineTaskProject" class="rounded-lg px-2.5 py-1.5 min-w-[135px] font-bold" title="پروژه مرتبط">
+          <option value="عمومی">📁 پروژه: عمومی</option>
+        </select>
+        <select id="inlineTaskAssignee" class="rounded-lg px-2.5 py-1.5 min-w-[125px]"></select>
         <div class="inline-flex items-center gap-1 subtle-bg px-2 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
           <span class="font-extrabold text-[11px] text-emerald-700 dark:text-emerald-400">ددلاین:</span>
           <input type="text" id="inlineTaskDeadline" dir="ltr" placeholder="1405/08/08" class="w-24 rounded px-1.5 py-1 font-mono text-center font-bold" />
@@ -989,36 +995,47 @@
     </section>
 
     <!-- ==========================================
-         VIEW 6: PROJECTS & MEETING MINUTES LOG
+         VIEW 6: PROJECTS, PROJECT TASKS & MEETING MINUTES HUB
          ========================================== -->
-    <section id="view-projects" class="tab-view hidden space-y-4">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <!-- Active & Strategic Projects (6 cols) -->
-        <div class="lg:col-span-6 surface-card rounded-xl p-4 shadow-sm space-y-3">
-          <div class="flex items-center justify-between border-b pb-2.5 border-slate-200 dark:border-slate-700">
-            <div>
-              <h2 class="font-extrabold text-base flex items-center gap-2">
-                <span>🚀</span><span>مدیریت پروژه‌ها و خطوط محصول آبتانو</span>
-              </h2>
-              
-            </div>
-            <button id="btnAddNewProject" class="brand-btn px-3 py-1.5 rounded-lg text-xs font-bold">+ پروژه جدید</button>
+    <section id="view-projects" class="tab-view hidden space-y-3.5">
+      <!-- Projects KPI Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="projectsKpiStrip"></div>
+
+      <!-- Projects Top Action & Filter Bar -->
+      <div class="surface-card rounded-xl p-3 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex flex-wrap items-center gap-2 flex-1">
+          <div class="relative min-w-[200px] flex-1 max-w-xs">
+            <input type="text" id="projectSearchInput" placeholder="جستجو در نام پروژه، مسئول، شرح یا وظایف پروژه..." class="w-full pl-3 pr-8 py-1.5 rounded-lg text-xs" />
+            <span class="absolute right-2.5 top-2 muted-text">🔍</span>
           </div>
-          <div id="strategicProjectsGrid" class="space-y-3"></div>
+          <select id="filterProjectTaskStatus" class="rounded-lg px-2.5 py-1.5 font-bold text-xs">
+            <option value="all">📋 نمایش همه وظایف هر پروژه</option>
+            <option value="open">⏳ فقط وظایف باز هر پروژه</option>
+            <option value="completed">✅ فقط وظایف تکمیل‌شده</option>
+          </select>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btnAddNewProject" class="brand-btn px-3.5 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1 shadow-xs">+ پروژه جدید</button>
+          <button id="btnAddNewMeeting" class="brand-btn px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">+ ثبت صورت‌جلسه جدید</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Active & Strategic Projects + Integrated Project Tasks (8 cols) -->
+        <div class="lg:col-span-8 space-y-3">
+          <div id="strategicProjectsGrid" class="space-y-3.5"></div>
         </div>
 
-        <!-- Meeting Minutes & Decisions Archive (6 cols) -->
-        <div class="lg:col-span-6 surface-card rounded-xl p-4 shadow-sm space-y-3">
+        <!-- Meeting Minutes & Decisions Archive (4 cols) -->
+        <div class="lg:col-span-4 surface-card rounded-xl p-4 shadow-sm space-y-3 h-fit">
           <div class="flex items-center justify-between border-b pb-2.5 border-slate-200 dark:border-slate-700">
             <div>
-              <h3 class="font-extrabold text-base flex items-center gap-2">
-                <span>🎙️</span><span>آرشیو صورت‌جلسات و مصوبات مدیریتی</span>
+              <h3 class="font-extrabold text-sm md:text-base flex items-center gap-2">
+                <span>🎙️</span><span>آرشیو صورت‌جلسات و مصوبات</span>
               </h3>
-              
             </div>
-            <button id="btnAddNewMeeting" class="brand-btn px-3 py-1.5 rounded-lg text-xs font-bold">+ ثبت صورت‌جلسه جدید</button>
           </div>
-          <div id="meetingsListContainer" class="space-y-3"></div>
+          <div id="meetingsListContainer" class="space-y-3 max-h-[75vh] overflow-y-auto pr-1"></div>
         </div>
       </div>
     </section>
@@ -1296,7 +1313,9 @@
         <form id="formPortalQuickTask" class="surface-card rounded-xl p-2 shadow-xs flex flex-wrap items-center gap-1.5 text-xs">
           <span class="font-extrabold px-1 text-emerald-700 dark:text-emerald-400">➕ کار جدید:</span>
           <input type="text" id="portalQuickTaskTitle" required placeholder="عنوان وظیفه را بنویسید و Enter بزنید..." class="flex-1 min-w-[160px] rounded-lg px-2.5 py-1 font-bold" />
-          <input type="text" id="portalQuickTaskProject" placeholder="پروژه / بخش" class="w-32 rounded-lg px-2 py-1" />
+          <select id="portalQuickTaskProject" class="w-36 rounded-lg px-2 py-1 font-bold" title="پروژه مرتبط">
+            <option value="عمومی">📁 عمومی</option>
+          </select>
           <div class="inline-flex items-center gap-1 subtle-bg px-1.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
             <span class="font-extrabold text-[10px] text-emerald-700 dark:text-emerald-400">مهلت:</span>
             <input type="text" id="portalQuickTaskDeadline" dir="ltr" placeholder="1405/08/18" class="w-20 rounded px-1 py-0.5 font-mono text-center font-bold" />
@@ -1374,7 +1393,7 @@
                   <th class="w-20">ساعت</th>
                   <th class="w-28">مدت کارکرد</th>
                   <th>متن گزارش / یادداشت ثبت‌شده</th>
-                  <th class="w-20 text-center">ویرایش</th>
+                  <th class="w-20 text-center">عملیات</th>
                 </tr>
               </thead>
               <tbody id="portalTimelineTableBody"></tbody>
@@ -1447,17 +1466,17 @@
           <table class="excel-table">
             <thead>
               <tr>
-                <th>نام کاربری (Username)</th>
-                <th>عضو مرتبط در تیم</th>
+                <th data-admin-user-sort="username" class="sortable-th">نام کاربری (Username) <span class="admin-user-sort-ind" data-ind="username"></span></th>
+                <th data-admin-user-sort="displayName" class="sortable-th">عضو مرتبط در تیم <span class="admin-user-sort-ind" data-ind="displayName"></span></th>
                 <th>رمز عبور (تغییر توسط ادمین)</th>
-                <th>نقش امنیتی</th>
+                <th data-admin-user-sort="role" class="sortable-th">نقش امنیتی <span class="admin-user-sort-ind" data-ind="role"></span></th>
                 <th>بخش‌های مجاز دسترسی (Permissions)</th>
                 <th class="text-center">ویرایش وظایف</th>
                 <th>مجوز حذف</th>
-                <th>آخرین ورود (Last Login)</th>
-                <th>تعداد ورود</th>
-                <th>وضعیت</th>
-                <th class="text-center">عملیات ادمین</th>
+                <th data-admin-user-sort="lastLogin" class="sortable-th">آخرین ورود (شمسی) <span class="admin-user-sort-ind" data-ind="lastLogin"></span></th>
+                <th data-admin-user-sort="loginCount" class="sortable-th">تعداد ورود <span class="admin-user-sort-ind" data-ind="loginCount"></span></th>
+                <th data-admin-user-sort="active" class="sortable-th">وضعیت <span class="admin-user-sort-ind" data-ind="active"></span></th>
+                <th class="text-center">عملیات</th>
               </tr>
             </thead>
             <tbody id="adminUsersTableBody"></tbody>
@@ -1525,10 +1544,10 @@
           <table class="excel-table">
             <thead>
               <tr>
-                <th class="w-36">تاریخ و ساعت (شمسی)</th>
-                <th class="w-40">کاربر انجام‌دهنده</th>
-                <th class="w-36">نوع عملیات</th>
-                <th>شرح دقیق تغییر و جزئیات (What Changed)</th>
+                <th data-audit-sort="date" class="sortable-th w-40" title="مرتب‌سازی بر اساس تاریخ و ساعت">تاریخ و ساعت (شمسی) <span class="audit-sort-ind" data-ind="date">▼</span></th>
+                <th data-audit-sort="user" class="sortable-th w-44" title="مرتب‌سازی بر اساس کاربر انجام‌دهنده">کاربر انجام‌دهنده <span class="audit-sort-ind" data-ind="user"></span></th>
+                <th data-audit-sort="type" class="sortable-th w-36" title="مرتب‌سازی بر اساس نوع عملیات">نوع عملیات <span class="audit-sort-ind" data-ind="type"></span></th>
+                <th data-audit-sort="details" class="sortable-th" title="مرتب‌سازی بر اساس عنوان و شرح تغییر">شرح دقیق تغییر و جزئیات (What Changed) <span class="audit-sort-ind" data-ind="details"></span></th>
               </tr>
             </thead>
             <tbody id="adminAuditLogTableBody"></tbody>
@@ -1570,8 +1589,12 @@
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold mb-1">پروژه مرتبط</label>
-            <input type="text" id="taskFormProject" class="w-full rounded-lg px-3 py-2" placeholder="نام پروژه یا بخش..." />
+            <label class="block font-bold mb-1">پروژه مرتبط (انتخاب از لیست پروژه‌ها)</label>
+            <select id="taskFormProjectSelect" class="w-full rounded-lg px-3 py-2 font-bold">
+              <option value="عمومی">📁 عمومی (بدون پروژه خاص)</option>
+              <option value="__custom__">➕ تعریف پروژه جدید...</option>
+            </select>
+            <input type="text" id="taskFormProject" class="w-full rounded-lg px-3 py-1.5 mt-1.5 hidden" placeholder="نام پروژه جدید را وارد کنید..." />
           </div>
           <div>
             <label class="block font-bold mb-1">دسته‌بندی</label>
@@ -2468,7 +2491,7 @@
         <div class="flex items-center gap-1.5">
           <button type="button" id="btnTdvToggleComplete" class="px-3.5 py-2 rounded-xl font-extrabold text-xs"></button>
           <button type="button" id="btnTdvOpenLogs" class="themed-btn px-3 py-2 rounded-xl font-bold text-xs">💬 + ثبت گزارش</button>
-          <button type="button" id="btnTdvEditTask" class="themed-btn px-3 py-2 rounded-xl font-bold text-xs">✏️ ویرایش</button>
+          <button type="button" id="btnTdvEditTask" class="themed-btn px-3 py-2 rounded-xl font-bold text-xs" title="ویرایش وظیفه">✏️</button>
         </div>
         <button type="button" id="btnDoneTaskDetailView" class="themed-btn px-4 py-2 rounded-xl font-bold text-xs">بستن</button>
       </div>
@@ -2627,6 +2650,8 @@
     // Sorting State (Default by Date Ascending as requested)
     let taskSort = { col: 'deadline', dir: 'asc' };
     let invSort = { col: 'buyDate', dir: 'asc' };
+    let auditSort = { col: 'date', dir: 'desc' };
+    let adminUserSort = { col: 'username', dir: 'asc' };
 
     // Undo / Redo History Stacks
     const undoStack = [];
@@ -2938,7 +2963,8 @@
     function recordAuditLog(actionType, detailsText, customUserStr = null) {
       if (!appState) return;
       appState.auditLogs = Array.isArray(appState.auditLogs) ? appState.auditLogs : [];
-      const simDate = (appState.settings && appState.settings.currentSimDate) || getRealTodayJalaliString();
+      const simDate = getRealTodayJalaliString();
+      if (appState && appState.settings) appState.settings.currentSimDate = simDate;
       const nowTime = new Date().toTimeString().slice(0, 8);
       const actor = customUserStr || (currentUserSession ? `${currentUserSession.displayName} (@${currentUserSession.username})` : 'سیستم / ادمین');
       const entry = {
@@ -3310,9 +3336,31 @@
       return formatJalaliString(j.jy, j.jm, j.jd);
     }
 
+    function normalizeDateToJalaliString(rawStr) {
+      if (!rawStr || rawStr === '-') return rawStr || '';
+      const clean = toEnglishDigits(String(rawStr).trim());
+      const m = clean.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(.*)$/);
+      if (!m) return clean;
+      const yr = parseInt(m[1], 10);
+      const mo = parseInt(m[2], 10);
+      const dy = parseInt(m[3], 10);
+      const rest = m[4] || '';
+      if (yr >= 1900 && yr <= 2100 && mo >= 1 && mo <= 12 && dy >= 1 && dy <= 31) {
+        const j = gregorianToJalali(yr, mo, dy);
+        const jDate = formatJalaliString(j.jy, j.jm, j.jd);
+        if (rest.startsWith('T')) {
+          const timePart = rest.slice(1, 9);
+          return jDate + (timePart ? (' ' + timePart) : '');
+        }
+        return jDate + rest;
+      }
+      return formatJalaliString(yr, mo, dy) + rest;
+    }
+
     function formatJalaliHuman(str) {
       if (!str) return '-';
-      const { jy, jm, jd } = parseJalaliString(str);
+      const norm = normalizeDateToJalaliString(str).split(' ')[0];
+      const { jy, jm, jd } = parseJalaliString(norm);
       const wIdx = getJalaliWeekdayIndex(jy, jm, jd);
       return `${PERSIAN_WEEKDAYS[wIdx]} ${toPersianDigits(jd)} ${PERSIAN_MONTHS[jm - 1]} ${toPersianDigits(jy)}`;
     }
@@ -3375,7 +3423,11 @@
       const base = createCleanInitialState();
       if (!s || typeof s !== 'object') return base;
       s.meta = Object.assign({}, base.meta, s.meta || {});
-      s.settings = Object.assign({ usdExchangeRate: 68000 }, base.settings, s.settings || {});
+      const liveTodayNow = getRealTodayJalaliString();
+      s.settings = Object.assign({ usdExchangeRate: 68000 }, base.settings, s.settings || {}, {
+        currentSimDate: liveTodayNow,
+        autoSyncToday: true
+      });
       if (!s.settings.usdExchangeRate) s.settings.usdExchangeRate = 68000;
       if (s.settings.theme) {
         if (s.settings.theme === 'dark-slate') {
@@ -3410,8 +3462,33 @@
         const isAdm = u.role === 'admin' || String(u.username || '').toLowerCase() === 'shayan';
         u.canDelete = isAdm ? true : Boolean(u.canDelete === true);
         u.canEditTasks = isAdm ? true : Boolean(u.canEditTasks === true);
+        if (u.lastLogin && u.lastLogin !== '-') {
+          u.lastLogin = normalizeDateToJalaliString(u.lastLogin);
+        }
       });
       s.auditLogs = Array.isArray(s.auditLogs) ? s.auditLogs : [];
+      s.auditLogs.forEach(lg => {
+        if (lg && lg.date) {
+          const norm = normalizeDateToJalaliString(lg.date);
+          const parts = norm.split(' ');
+          lg.date = parts[0];
+          if (!lg.time && parts[1]) lg.time = parts[1];
+        }
+      });
+
+      let maxPrj = Math.max(0, (Number(s.meta.nextProjNumber) || 1) - 1);
+      const projById = {};
+      const projByName = {};
+      s.projects.forEach(p => {
+        if (!p) return;
+        const m = String(p.id || '').match(/^PRJ-(\d+)$/);
+        if (m && parseInt(m[1], 10) > maxPrj) maxPrj = parseInt(m[1], 10);
+        if (!p._uid) p._uid = `uid_prj_${p.id}`;
+        if (!p._updatedAt) p._updatedAt = 1;
+        if (p.id) projById[p.id] = p;
+        if (p.name) projByName[String(p.name).trim()] = p;
+      });
+      s.meta.nextProjNumber = maxPrj + 1;
 
       // Update monotonic task/inv/proj counters & reserved IDs
       const reservedTasks = new Set(Array.isArray(s.meta.existingTaskIds) ? s.meta.existingTaskIds : []);
@@ -3423,6 +3500,11 @@
         if (m && parseInt(m[1], 10) > maxTsk) maxTsk = parseInt(m[1], 10);
         if (!t._uid) t._uid = `uid_tsk_${t.id}_${t.startDate || '0'}`;
         if (!t._updatedAt) t._updatedAt = 1;
+        if (t.projectId && projById[t.projectId]) {
+          t.project = projById[t.projectId].name;
+        } else if (t.project && projByName[String(t.project).trim()]) {
+          t.projectId = projByName[String(t.project).trim()].id;
+        }
       });
       reservedTasks.forEach(code => {
         const m = String(code || '').match(/^TSK-(\d+)$/);
@@ -3466,7 +3548,10 @@
       }
       if (parsed.settings) {
         const keepLogo = appState.settings.customLogo || parsed.settings.customLogo;
-        appState.settings = Object.assign({}, appState.settings, parsed.settings);
+        appState.settings = Object.assign({}, appState.settings, parsed.settings, {
+          currentSimDate: getRealTodayJalaliString(),
+          autoSyncToday: true
+        });
         if (keepLogo) appState.settings.customLogo = keepLogo;
       }
 
@@ -3841,6 +3926,19 @@
     }
 
     const _entityDigestCache = new Map();
+    function primeEntityDigestCache() {
+      if (!appState) return;
+      ['tasks', 'employees', 'inventory', 'projects', 'meetings'].forEach(b => {
+        const arr = appState[b];
+        if (!Array.isArray(arr)) return;
+        arr.forEach(item => {
+          if (!item || !item.id) return;
+          const copyForHash = Object.assign({}, item);
+          delete copyForHash._updatedAt;
+          _entityDigestCache.set(`${b}:${item.id}`, JSON.stringify(copyForHash));
+        });
+      });
+    }
     function stampModifiedEntitiesWithTimestamp() {
       if (!appState) return;
       const now = Date.now();
@@ -4033,14 +4131,18 @@
         document.getElementById('darkModeLabel').textContent = 'حالت تیره';
       }
 
-      const simDate = appState.settings.currentSimDate || '1405/08/06';
-      document.getElementById('liveTodayBadge').textContent = formatJalaliHuman(simDate);
+      const simDate = getRealTodayJalaliString();
+      appState.settings.currentSimDate = simDate;
+      document.getElementById('liveTodayBadge').textContent = `${formatJalaliHuman(simDate)} (${toPersianDigits(simDate)})`;
       document.getElementById('simDateInput').value = simDate;
-      document.getElementById('inlineTaskDeadline').value = simDate;
+      const inlineDlEl = document.getElementById('inlineTaskDeadline');
+      if (inlineDlEl && !inlineDlEl.value) inlineDlEl.value = simDate;
 
       document.getElementById('navBadgeTasks').textContent = toPersianDigits(appState.tasks.length);
       document.getElementById('navBadgeEmployees').textContent = toPersianDigits(appState.employees.length);
       document.getElementById('navBadgeInventory').textContent = toPersianDigits(appState.inventory.length);
+      const projBadgeEl = document.getElementById('navBadgeProjects');
+      if (projBadgeEl) projBadgeEl.textContent = toPersianDigits((appState.projects || []).length);
 
       // Show or hide onboarding empty banner
       const isEmpty = appState.tasks.length === 0 && appState.employees.length === 0 && appState.inventory.length === 0;
@@ -4087,12 +4189,67 @@
         appState.employees.map(e => `<option value="${e.id}">${e.name} (${e.department || e.role})</option>`).join('');
       empFilter.value = currentEmpVal;
 
+      const catalogNames = Array.isArray(appState.meta?.projectCatalog)
+        ? appState.meta.projectCatalog.map(p => p.name).filter(Boolean)
+        : [];
+      const formalProjectNames = (appState.projects || []).map(p => p.name).filter(Boolean);
+      const taskProjectNames = (appState.tasks || []).map(t => t.project).filter(Boolean);
+      const allProjectNames = [...new Set([...formalProjectNames, ...catalogNames, ...taskProjectNames])];
+
       const projFilter = document.getElementById('filterTaskProject');
       const currentProjVal = projFilter.value || 'all';
-      const uniqueProjects = [...new Set(appState.tasks.map(t => t.project).filter(Boolean))];
-      projFilter.innerHTML = `<option value="all">📁 همه پروژه‌ها</option>` +
-        uniqueProjects.map(p => `<option value="${p}">${p}</option>`).join('');
-      projFilter.value = currentProjVal;
+      projFilter.innerHTML = `<option value="all">📁 همه پروژه‌ها (${toPersianDigits(allProjectNames.length)})</option>` +
+        allProjectNames.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('');
+      projFilter.value = allProjectNames.includes(currentProjVal) ? currentProjVal : 'all';
+
+      // Populate Task Modal Project Dropdown (پروژه مرتبط)
+      const taskProjSelect = document.getElementById('taskFormProjectSelect');
+      if (taskProjSelect) {
+        const prevVal = taskProjSelect.value;
+        const projOpts = [];
+        const seenNames = new Set();
+        (appState.projects || []).forEach(p => {
+          if (p && p.name && !seenNames.has(p.name)) {
+            seenNames.add(p.name);
+            projOpts.push(`<option value="${escapeHtml(p.name)}">🚀 ${escapeHtml(p.name)}</option>`);
+          }
+        });
+        catalogNames.forEach(name => {
+          if (name && !seenNames.has(name)) {
+            seenNames.add(name);
+            projOpts.push(`<option value="${escapeHtml(name)}">🚀 ${escapeHtml(name)}</option>`);
+          }
+        });
+        taskProjectNames.forEach(name => {
+          if (name && name !== 'عمومی' && !seenNames.has(name)) {
+            seenNames.add(name);
+            projOpts.push(`<option value="${escapeHtml(name)}">📁 ${escapeHtml(name)}</option>`);
+          }
+        });
+        taskProjSelect.innerHTML =
+          `<option value="عمومی">📁 عمومی (بدون پروژه خاص)</option>` +
+          projOpts.join('') +
+          `<option value="__custom__">➕ تعریف پروژه جدید...</option>`;
+        if (prevVal && (seenNames.has(prevVal) || prevVal === 'عمومی' || prevVal === '__custom__')) {
+          taskProjSelect.value = prevVal;
+        }
+      }
+
+      // Populate Quick Inline Task Project Dropdowns
+      const quickProjHtml = `<option value="عمومی">📁 عمومی</option>` +
+        allProjectNames.filter(n => n !== 'عمومی').map(p => `<option value="${escapeHtml(p)}">🚀 ${escapeHtml(p)}</option>`).join('');
+      const inlineProjEl = document.getElementById('inlineTaskProject');
+      if (inlineProjEl) {
+        const curInl = inlineProjEl.value || 'عمومی';
+        inlineProjEl.innerHTML = quickProjHtml;
+        if (allProjectNames.includes(curInl) || curInl === 'عمومی') inlineProjEl.value = curInl;
+      }
+      const portalProjEl = document.getElementById('portalQuickTaskProject');
+      if (portalProjEl) {
+        const curPrt = portalProjEl.value || 'عمومی';
+        portalProjEl.innerHTML = quickProjHtml;
+        if (allProjectNames.includes(curPrt) || curPrt === 'عمومی') portalProjEl.value = curPrt;
+      }
 
       const myEmpId = getCurrentUserEmployeeId();
       const visibleEmps = isAdminUser()
@@ -4683,10 +4840,10 @@
                 <p class="text-xs muted-text">${emp.role} • تلفن: <span dir="ltr">${toPersianDigits(emp.phone || '-')}</span></p>
               </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-1.5">
               <button data-action="quick-emp-log" data-emp-id="${emp.id}" class="brand-btn px-3 py-1.5 rounded-lg text-xs font-bold">📝 ثبت گزارش جدید برای ${emp.name}</button>
-              <button data-action="edit-employee" data-emp-id="${emp.id}" class="themed-btn px-3 py-1.5 rounded-lg text-xs font-bold">✏️ ویرایش مشخصات</button>
-              ${canCurrentUserDelete() ? `<button data-action="delete-employee" data-emp-id="${emp.id}" class="themed-btn px-2.5 py-1.5 rounded-lg text-xs font-bold hover:text-rose-500">🗑️ حذف</button>` : ""}
+              <button data-action="edit-employee" data-emp-id="${emp.id}" class="themed-btn p-1.5 rounded-lg text-xs font-bold" title="ویرایش مشخصات ${emp.name}">✏️</button>
+              ${canCurrentUserDelete() ? `<button data-action="delete-employee" data-emp-id="${emp.id}" class="themed-btn p-1.5 rounded-lg text-xs font-bold hover:text-rose-500" title="حذف عضو تیم">🗑️</button>` : ""}
             </div>
           </div>
 
@@ -4760,8 +4917,8 @@
                         <button data-action="open-task-logs" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="سوابق گزارش">📚 (${toPersianDigits((t.logs || []).length)})</button>
                         ${t.status !== 'completed' ? `<button data-action="complete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه">تکمیل</button>` : `<button data-action="uncomplete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`}
                         <button data-action="shift-deadline" data-task-id="${t.id}" data-days="1" class="themed-btn px-2 py-1 rounded text-[10px] font-bold">+۱ روز</button>
-                        ${canCurrentUserEditTasks() ? `<button data-action="edit-task" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold">ویرایش</button>` : ''}
-                        ${canCurrentUserDelete() ? `<button data-action="delete-task" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold hover:text-rose-500" title="حذف وظیفه">🗑️ حذف</button>` : ""}
+                        ${canCurrentUserEditTasks() ? `<button data-action="edit-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs" title="ویرایش وظیفه">✏️</button>` : ''}
+                        ${canCurrentUserDelete() ? `<button data-action="delete-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف وظیفه">🗑️</button>` : ""}
                       </div>
                     </div>
                   `).join('')}
@@ -5166,36 +5323,327 @@
     }
 
     // -------------------------------------------------------------------------
-    // VIEW 6: PROJECTS & MEETING MINUTES
+    // VIEW 6: PROJECTS, PROJECT TASKS & MEETING MINUTES HUB
     // -------------------------------------------------------------------------
+    function getTasksForProject(proj) {
+      if (!proj) return [];
+      const pName = String(proj.name || '').trim();
+      return (appState.tasks || []).filter(t => {
+        if (proj.id && t.projectId && t.projectId === proj.id) return true;
+        if (pName && String(t.project || '').trim() === pName) return true;
+        return false;
+      });
+    }
+
     function renderProjectsAndMeetingsView() {
-      const grid = document.getElementById('strategicProjectsGrid');
-      if ((appState.projects || []).length === 0) {
-        grid.innerHTML = `<div class="p-6 rounded-xl border border-dashed text-center text-xs muted-text">هنوز پروژه‌ای ثبت نشده است.</div>`;
-      } else {
-        grid.innerHTML = appState.projects.map(p => `
-          <div class="p-3.5 rounded-xl subtle-bg border border-slate-200 dark:border-slate-700 space-y-2">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">${p.type || 'پروژه'}</span>
-                <h4 class="font-extrabold text-sm mt-1">${p.name}</h4>
+      const projects = appState.projects || [];
+      const allTasks = appState.tasks || [];
+      const q = (document.getElementById('projectSearchInput')?.value || '').trim().toLowerCase();
+      const taskStatusFilter = document.getElementById('filterProjectTaskStatus')?.value || 'all';
+      const simDate = getRealTodayJalaliString();
+
+      // Compute Project KPIs
+      let totalProjTasks = 0;
+      let completedProjTasks = 0;
+      let totalProjWorkedMins = 0;
+      projects.forEach(p => {
+        const pTasks = getTasksForProject(p);
+        totalProjTasks += pTasks.length;
+        completedProjTasks += pTasks.filter(t => getEffectiveTaskStatus(t) === 'completed').length;
+        totalProjWorkedMins += pTasks.reduce((acc, t) => acc + getTaskTotalMinutes(t), 0);
+      });
+      const avgProjProgress = projects.length > 0
+        ? Math.round(projects.reduce((acc, p) => {
+            const pTasks = getTasksForProject(p);
+            const autoProg = pTasks.length > 0
+              ? Math.round(pTasks.reduce((s, t) => s + (Number(t.progress) || 0), 0) / pTasks.length)
+              : (Number(p.progress) || 0);
+            return acc + autoProg;
+          }, 0) / projects.length)
+        : 0;
+
+      const kpiStrip = document.getElementById('projectsKpiStrip');
+      if (kpiStrip) {
+        kpiStrip.innerHTML = `
+          <div class="surface-card rounded-xl p-3 shadow-xs border-r-4 border-r-purple-600">
+            <div class="text-[11px] muted-text font-bold">کل پروژه‌های تعریف‌شده</div>
+            <div class="text-xl font-black mt-0.5 text-purple-600 dark:text-purple-400">${toPersianDigits(projects.length)} <span class="text-xs font-normal muted-text">پروژه فعال</span></div>
+          </div>
+          <div class="surface-card rounded-xl p-3 shadow-xs border-r-4 border-r-emerald-600">
+            <div class="text-[11px] muted-text font-bold">وظایف مرتبط با پروژه‌ها</div>
+            <div class="text-xl font-black mt-0.5">${toPersianDigits(totalProjTasks)} <span class="text-xs font-normal text-emerald-600">(${toPersianDigits(completedProjTasks)} تکمیل)</span></div>
+          </div>
+          <div class="surface-card rounded-xl p-3 shadow-xs border-r-4 border-r-sky-600">
+            <div class="text-[11px] muted-text font-bold">میانگین پیشرفت پروژه‌ها</div>
+            <div class="text-xl font-black mt-0.5 text-sky-500">${toPersianDigits(avgProjProgress)}٪</div>
+          </div>
+          <div class="surface-card rounded-xl p-3 shadow-xs border-r-4 border-r-amber-500">
+            <div class="text-[11px] muted-text font-bold">مجموع کارکرد روی پروژه‌ها</div>
+            <div class="text-lg font-black mt-0.5 font-mono text-amber-600 dark:text-amber-400">⏱️ ${formatMinutesToHHMM(totalProjWorkedMins)}</div>
+          </div>
+        `;
+      }
+
+      const visibleEmps = isAdminUser()
+        ? appState.employees
+        : appState.employees.filter(e => e.id === getCurrentUserEmployeeId());
+      const empSelectOptions = visibleEmps.length > 0
+        ? visibleEmps.map(e => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('')
+        : `<option value="">مسئول اجرا</option>`;
+
+      const prioBadge = {
+        critical: '<span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-600 dark:text-rose-300 font-extrabold text-[10px]">🔥 فوری</span>',
+        high: '<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-300 font-bold text-[10px]">🟠 بالا</span>',
+        medium: '<span class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300 font-semibold text-[10px]">🟡 متوسط</span>',
+        low: '<span class="px-1.5 py-0.5 rounded bg-slate-500/20 muted-text text-[10px]">🟢 عادی</span>'
+      };
+
+      const renderProjectTaskRow = (t) => {
+        const emp = getEmployeeById(t.assigneeId);
+        const eff = getEffectiveTaskStatus(t);
+        const rowBg = eff === 'completed' ? 'row-completed' : eff === 'delayed' ? 'row-delayed' : '';
+        return `
+          <tr class="${rowBg}">
+            <td class="font-mono text-[10px] font-bold muted-text whitespace-nowrap">${escapeHtml(t.id)}</td>
+            <td>
+              <div data-action="view-task-detail" data-task-id="${escapeHtml(t.id)}" class="cursor-pointer group" title="مشاهده شرح کامل و جزئیات وظیفه">
+                <div class="font-extrabold text-xs group-hover:text-emerald-600 dark:group-hover:text-emerald-400 ${t.status === 'completed' ? 'line-through opacity-75' : ''}">${escapeHtml(t.title)}</div>
+                ${t.lastNote ? `<div class="text-[10px] muted-text line-clamp-1 mt-0.5">💬 ${escapeHtml(t.lastNote)}</div>` : ''}
               </div>
+            </td>
+            <td class="whitespace-nowrap">
+              <span data-action="open-emp-profile" data-emp-id="${escapeHtml(emp.id)}" class="emp-link font-bold text-xs inline-flex items-center gap-1" title="مشاهده کارنمای ${escapeHtml(emp.name)}">
+                <span class="w-4 h-4 rounded-full text-white text-[9px] flex items-center justify-center shrink-0" style="background:${emp.avatarColor}">${escapeHtml(emp.name.charAt(0))}</span>
+                <span>${escapeHtml(emp.name)}</span>
+              </span>
+              ${t.coAssignee ? `<div class="text-[10px] muted-text">همکار: ${escapeHtml(t.coAssignee)}</div>` : ''}
+            </td>
+            <td class="whitespace-nowrap">${prioBadge[t.priority] || escapeHtml(t.priority)}</td>
+            <td>
+              <select data-action="inline-status" data-task-id="${escapeHtml(t.id)}" class="text-[11px] font-bold rounded px-1.5 py-0.5">
+                <option value="in-progress" ${t.status === 'in-progress' ? 'selected' : ''}>🟡 در حال انجام</option>
+                <option value="pending" ${t.status === 'pending' ? 'selected' : ''}>🔵 در انتظار</option>
+                <option value="completed" ${t.status === 'completed' ? 'selected' : ''}>🟢 تکمیل شده</option>
+                <option value="delayed" ${t.status === 'delayed' ? 'selected' : ''}>🔴 دارای تاخیر</option>
+              </select>
+            </td>
+            <td>
+              <div data-action="drag-task-progress" data-task-id="${escapeHtml(t.id)}" class="flex items-center gap-1 cursor-ew-resize select-none py-0.5 px-1 rounded hover:bg-slate-500/10" title="برای تغییر درصد پیشرفت بکشید">
+                <div class="w-12 h-2 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden pointer-events-none">
+                  <div class="js-prog-fill h-full ${eff === 'completed' ? 'bg-emerald-500' : 'bg-sky-500'}" style="width:${Number(t.progress) || 0}%"></div>
+                </div>
+                <span class="js-prog-label text-[10px] font-bold w-7 text-left pointer-events-none">${toPersianDigits(t.progress || 0)}٪</span>
+              </div>
+            </td>
+            <td class="whitespace-nowrap">
               <div class="flex items-center gap-1">
-                <span class="text-xs font-bold text-sky-500 ml-2">ددلاین: ${formatJalaliHuman(p.deadline)}</span>
-                <button data-action="edit-project" data-proj-id="${p.id}" class="themed-btn p-1 rounded text-xs">✏️</button>
-                <button data-action="delete-project" data-proj-id="${p.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500">🗑️</button>
+                <input type="text" data-action="inline-worked-time" data-task-id="${escapeHtml(t.id)}" value="${formatMinutesToHHMM(getTaskTotalMinutes(t), false)}" dir="ltr" placeholder="00:00" class="w-14 text-center font-mono text-[11px] font-extrabold rounded px-1 py-0.5" title="ساعت:دقیقه کارکرد" />
+                <button type="button" data-action="add-30m-task" data-task-id="${escapeHtml(t.id)}" class="themed-btn px-1 py-0.5 rounded text-[9px] font-bold" title="افزودن ۳۰ دقیقه">+۳۰د</button>
+              </div>
+            </td>
+            <td class="whitespace-nowrap">
+              <div class="font-bold text-[11px] ${eff === 'delayed' ? 'text-rose-500' : ''}">${formatShortSolarDeadline(t.deadline)}</div>
+              <div class="text-[9px] muted-text font-mono">${toPersianDigits(t.deadline)}</div>
+            </td>
+            <td class="text-center whitespace-nowrap">
+              <div class="inline-flex items-center gap-1">
+                ${t.status !== 'completed'
+                  ? `<button type="button" data-action="complete-task" data-task-id="${escapeHtml(t.id)}" class="px-1.5 py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه">✓</button>`
+                  : `<button type="button" data-action="uncomplete-task" data-task-id="${escapeHtml(t.id)}" class="px-1.5 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل">↩️</button>`
+                }
+                <button type="button" data-action="open-task-logs" data-task-id="${escapeHtml(t.id)}" class="themed-btn p-1 rounded text-[11px]" title="ثبت و مشاهده گزارش‌های وظیفه (${toPersianDigits((t.logs || []).length)})">📚</button>
+                ${canCurrentUserEditTasks() ? `<button type="button" data-action="edit-task" data-task-id="${escapeHtml(t.id)}" class="themed-btn p-1 rounded text-xs" title="ویرایش وظیفه">✏️</button>` : ''}
+                ${canCurrentUserDelete() ? `<button type="button" data-action="delete-task" data-task-id="${escapeHtml(t.id)}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف وظیفه">🗑️</button>` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      };
+
+      const grid = document.getElementById('strategicProjectsGrid');
+      const filteredProjects = projects.filter(p => {
+        if (!q) return true;
+        const pTasks = getTasksForProject(p);
+        const taskHay = pTasks.map(t => `${t.id} ${t.title} ${t.description} ${t.lastNote}`).join(' ');
+        const hay = `${p.id} ${p.name} ${p.type} ${p.lead} ${p.highlights} ${taskHay}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      let projectsHtml = '';
+      if (filteredProjects.length === 0) {
+        projectsHtml = `
+          <div class="surface-card p-6 rounded-xl border border-dashed text-center space-y-2">
+            <div class="text-sm font-extrabold">پروژه‌ای برای نمایش یافت نشد</div>
+            <p class="text-xs muted-text">با کلیک روی دکمه «🚀 + تعریف پروژه جدید» اولین پروژه را ایجاد کنید و وظایف مرتبط با آن را ثبت نمایید.</p>
+          </div>
+        `;
+      } else {
+        projectsHtml = filteredProjects.map(p => {
+          const allProjTasks = getTasksForProject(p);
+          const filteredProjTasks = allProjTasks.filter(t => {
+            if (taskStatusFilter === 'open') return getEffectiveTaskStatus(t) !== 'completed';
+            if (taskStatusFilter === 'completed') return getEffectiveTaskStatus(t) === 'completed';
+            return true;
+          });
+          const doneCount = allProjTasks.filter(t => getEffectiveTaskStatus(t) === 'completed').length;
+          const openCount = allProjTasks.length - doneCount;
+          const workedMins = allProjTasks.reduce((acc, t) => acc + getTaskTotalMinutes(t), 0);
+          const effectiveProg = allProjTasks.length > 0
+            ? Math.round(allProjTasks.reduce((s, t) => s + (Number(t.progress) || 0), 0) / allProjTasks.length)
+            : (Number(p.progress) || 0);
+          const dlInputId = `projQuickDeadline_${String(p.id).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+
+          return `
+            <div class="surface-card rounded-2xl p-4 shadow-sm border-r-4 border-r-emerald-600 space-y-3">
+              <!-- Project Header -->
+              <div class="flex flex-wrap items-start justify-between gap-2 border-b pb-3 border-slate-200 dark:border-slate-700">
+                <div class="space-y-1">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded subtle-bg border border-slate-300 dark:border-slate-600">${escapeHtml(p.id)}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">${escapeHtml(p.type || 'پروژه')}</span>
+                    ${p.lead ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-300">👤 مسئول: ${escapeHtml(p.lead)}</span>` : ''}
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300">📅 ددلاین هدف: ${formatJalaliHuman(p.deadline)}</span>
+                  </div>
+                  <h3 class="font-black text-sm md:text-base">${escapeHtml(p.name)}</h3>
+                  ${p.highlights ? `<p class="text-xs muted-text leading-relaxed">${escapeHtml(p.highlights)}</p>` : ''}
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+                  <button type="button" data-action="new-task-for-project" data-proj-id="${escapeHtml(p.id)}" class="brand-btn px-2.5 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1 shadow-xs" title="ثبت وظیفه جدید با فرم کامل در این پروژه">
+                    <span>➕</span><span>وظیفه جدید</span>
+                  </button>
+                  <button type="button" data-action="filter-tasks-by-project" data-proj-name="${escapeHtml(p.name)}" class="themed-btn px-2 py-1.5 rounded-lg text-[11px] font-bold" title="مشاهده در جدول کل وظایف">
+                    📋 جدول وظایف
+                  </button>
+                  <button type="button" data-action="edit-project" data-proj-id="${escapeHtml(p.id)}" class="themed-btn p-1.5 rounded-lg text-xs" title="ویرایش مشخصات پروژه">✏️</button>
+                  ${canCurrentUserDelete() ? `<button type="button" data-action="delete-project" data-proj-id="${escapeHtml(p.id)}" class="themed-btn p-1.5 rounded-lg text-xs hover:text-rose-500" title="حذف پروژه">🗑️</button>` : ''}
+                </div>
+              </div>
+
+              <!-- Project Progress & Stats Strip -->
+              <div class="flex flex-wrap items-center justify-between gap-3 subtle-bg px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-bold">📊 وضعیت وظایف پروژه:</span>
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 font-bold">✅ ${toPersianDigits(doneCount)} تکمیل</span>
+                  <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 font-bold">⏳ ${toPersianDigits(openCount)} باز</span>
+                  <span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-300 font-mono font-bold">⏱️ کارکرد: ${formatMinutesToHHMM(workedMins)}</span>
+                </div>
+                <div class="flex items-center gap-2 min-w-[180px] flex-1 max-w-xs">
+                  <div class="flex-1 h-2.5 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-600 transition-all" style="width:${effectiveProg}%"></div>
+                  </div>
+                  <span class="font-extrabold text-xs">${toPersianDigits(effectiveProg)}٪</span>
+                </div>
+              </div>
+
+              <!-- Inline Quick Add Task directly inside this Project -->
+              <form data-project-quick-task-form="${escapeHtml(p.id)}" class="subtle-bg p-2 rounded-xl border border-emerald-500/30 flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="font-extrabold text-emerald-700 dark:text-emerald-400 px-1">➕ افزودن سریع وظیفه به پروژه:</span>
+                <input type="text" name="taskTitle" required placeholder="عنوان وظیفه جدید برای «${escapeHtml(p.name)}»..." class="flex-1 min-w-[160px] rounded-lg px-2.5 py-1 font-bold" />
+                <select name="taskAssignee" class="rounded-lg px-2 py-1 font-bold min-w-[115px]">${empSelectOptions}</select>
+                <div class="inline-flex items-center gap-1 bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
+                  <span class="text-[10px] muted-text font-bold">مهلت:</span>
+                  <input type="text" id="${dlInputId}" name="taskDeadline" value="${escapeHtml(p.deadline || simDate)}" dir="ltr" class="w-20 rounded px-1 py-0.5 font-mono text-center font-bold text-[11px]" />
+                  <button type="button" data-action="open-jalali-picker" data-target-input="${dlInputId}" class="themed-btn px-1 py-0.5 rounded text-[11px]" title="انتخاب ددلاین از تقویم شمسی">🗓️</button>
+                </div>
+                <select name="taskPriority" class="rounded-lg px-2 py-1 font-bold">
+                  <option value="critical">🔥 فوری</option>
+                  <option value="high" selected>🟠 بالا</option>
+                  <option value="medium">🟡 متوسط</option>
+                  <option value="low">🟢 عادی</option>
+                </select>
+                <button type="submit" class="brand-btn px-3 py-1 rounded-lg font-extrabold">+ ثبت در پروژه</button>
+              </form>
+
+              <!-- Project Tasks Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                <table class="excel-table">
+                  <thead>
+                    <tr>
+                      <th class="w-16">کد</th>
+                      <th class="min-w-[170px]">عنوان وظیفه</th>
+                      <th>مسئول</th>
+                      <th>اولویت</th>
+                      <th>وضعیت</th>
+                      <th>پیشرفت</th>
+                      <th>کارکرد</th>
+                      <th>ددلاین</th>
+                      <th class="text-center">عملیات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${filteredProjTasks.length === 0
+                      ? `<tr><td colspan="9" class="text-center py-4 muted-text text-xs">هنوز وظیفه‌ای در این فیلتر برای پروژه «${escapeHtml(p.name)}» ثبت نشده است. از نوار بالا یا دکمه «➕ وظیفه جدید» اضافه کنید.</td></tr>`
+                      : filteredProjTasks.map(renderProjectTaskRow).join('')
+                    }
+                  </tbody>
+                </table>
               </div>
             </div>
-            <p class="text-xs muted-text leading-relaxed">${p.highlights || ''}</p>
-            <div class="flex items-center gap-2">
-              <div class="flex-1 h-2 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-600" style="width:${p.progress}%"></div>
+          `;
+        }).join('');
+      }
+
+      // Edge Case: Check if there are tasks in appState.tasks whose project name is not in appState.projects
+      const formalSet = new Set(projects.map(p => String(p.name || '').trim()).filter(Boolean));
+      const formalIdSet = new Set(projects.map(p => p.id).filter(Boolean));
+      const unlinkedTasks = allTasks.filter(t => {
+        if (t.projectId && formalIdSet.has(t.projectId)) return false;
+        const pName = String(t.project || '').trim();
+        if (pName && formalSet.has(pName)) return false;
+        if (taskStatusFilter === 'open' && getEffectiveTaskStatus(t) === 'completed') return false;
+        if (taskStatusFilter === 'completed' && getEffectiveTaskStatus(t) !== 'completed') return false;
+        if (q) {
+          const hay = `${t.id} ${t.title} ${t.project} ${t.description} ${t.lastNote}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (unlinkedTasks.length > 0) {
+        const unlinkedGroups = [...new Set(unlinkedTasks.map(t => String(t.project || 'عمومی').trim()))];
+        projectsHtml += `
+          <div class="surface-card rounded-2xl p-4 shadow-sm border-r-4 border-r-slate-500 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5 border-slate-200 dark:border-slate-700">
+              <div>
+                <h4 class="font-extrabold text-sm flex items-center gap-1.5">
+                  <span>📁</span><span>وظایف عمومی و بخش‌های ثبت‌نشده در لیست پروژه‌ها (${toPersianDigits(unlinkedTasks.length)} وظیفه)</span>
+                </h4>
+                <p class="text-[11px] muted-text">می‌توانید هر یک از این بخش‌ها را با یک کلیک به پروژه رسمی تبدیل کنید یا وظایف آن‌ها را ویرایش نمایید.</p>
               </div>
-              <span class="text-xs font-bold">${toPersianDigits(p.progress)}٪</span>
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${unlinkedGroups.filter(g => g && g !== 'عمومی').map(gName => `
+                  <button type="button" data-action="promote-project-name" data-proj-name="${escapeHtml(gName)}" class="themed-btn px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400">
+                    ➕ تبدیل «${escapeHtml(gName)}» به پروژه رسمی
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+              <table class="excel-table">
+                <thead>
+                  <tr>
+                    <th class="w-16">کد</th>
+                    <th class="min-w-[170px]">عنوان وظیفه</th>
+                    <th>مسئول</th>
+                    <th>اولویت</th>
+                    <th>وضعیت</th>
+                    <th>پیشرفت</th>
+                    <th>کارکرد</th>
+                    <th>ددلاین</th>
+                    <th class="text-center">عملیات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${unlinkedTasks.map(renderProjectTaskRow).join('')}
+                </tbody>
+              </table>
             </div>
           </div>
-        `).join('');
+        `;
       }
+
+      grid.innerHTML = projectsHtml;
 
       const mtgContainer = document.getElementById('meetingsListContainer');
       if ((appState.meetings || []).length === 0) {
@@ -5203,15 +5651,18 @@
       } else {
         mtgContainer.innerHTML = appState.meetings.map(m => `
           <div class="p-3.5 rounded-xl subtle-bg border border-slate-200 dark:border-slate-700 space-y-2">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-2">
               <div>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-500">📅 ${formatJalaliHuman(m.date)}</span>
-                <h4 class="font-extrabold text-sm mt-1">${m.title}</h4>
+                <h4 class="font-extrabold text-sm mt-1">${escapeHtml(m.title)}</h4>
               </div>
-              <button data-action="delete-meeting" data-mtg-id="${m.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500">🗑️</button>
+              <div class="inline-flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-meeting" data-mtg-id="${escapeHtml(m.id)}" class="themed-btn p-1 rounded text-xs" title="ویرایش صورت‌جلسه">✏️</button>
+                ${canCurrentUserDelete() ? `<button type="button" data-action="delete-meeting" data-mtg-id="${escapeHtml(m.id)}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف صورت‌جلسه">🗑️</button>` : ''}
+              </div>
             </div>
-            <div class="text-[11px] muted-text font-semibold">حاضرین: ${m.attendees || '-'}</div>
-            <p class="text-xs leading-relaxed whitespace-pre-line">${m.summary}</p>
+            <div class="text-[11px] muted-text font-semibold">حاضرین: ${escapeHtml(m.attendees || '-')}</div>
+            <p class="text-xs leading-relaxed whitespace-pre-line">${escapeHtml(m.summary)}</p>
           </div>
         `).join('');
       }
@@ -5510,10 +5961,14 @@
                   </div>
                 </td>
                 <td data-label="اقدام سریع:" class="mob-full-row text-center whitespace-nowrap">
-                  ${t.status !== 'completed'
-                    ? `<button type="button" data-action="complete-task" data-task-id="${t.id}" class="w-full sm:w-auto px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs">✓ تکمیل</button>`
-                    : `<button type="button" data-action="uncomplete-task" data-task-id="${t.id}" class="w-full sm:w-auto px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[11px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`
-                  }
+                  <div class="inline-flex items-center gap-1">
+                    ${t.status !== 'completed'
+                      ? `<button type="button" data-action="complete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs">✓ تکمیل</button>`
+                      : `<button type="button" data-action="uncomplete-task" data-task-id="${t.id}" class="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[11px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`
+                    }
+                    ${canCurrentUserEditTasks() ? `<button type="button" data-action="edit-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs" title="ویرایش وظیفه">✏️</button>` : ''}
+                    ${canCurrentUserDelete() ? `<button type="button" data-action="delete-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف وظیفه">🗑️</button>` : ''}
+                  </div>
                 </td>
               </tr>
             `;
@@ -5580,8 +6035,12 @@
               <td class="whitespace-nowrap font-mono text-xs muted-text">${toPersianDigits(h.time || '12:00')}</td>
               <td class="whitespace-nowrap font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">${h.workedMinutes ? formatMinutesToHHMM(h.workedMinutes) : '-'}</td>
               <td class="text-xs leading-relaxed">${h.text}</td>
-              <td class="text-center">
-                ${canCurrentUserEditTasks() ? `<button type="button" data-action="edit-emp-history" data-emp-id="${emp.id}" data-hist-idx="${hIdx}" class="themed-btn px-2 py-0.5 rounded text-xs font-bold">✏️</button>` : `<span class="text-[10px] muted-text">🔒</span>`}
+              <td class="text-center whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  ${canCurrentUserEditTasks() ? `<button type="button" data-action="edit-emp-history" data-emp-id="${emp.id}" data-hist-idx="${hIdx}" class="themed-btn p-1 rounded text-xs" title="ویرایش گزارش">✏️</button>` : ''}
+                  ${canCurrentUserDelete() ? `<button type="button" data-action="delete-emp-history" data-emp-id="${emp.id}" data-hist-idx="${hIdx}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف گزارش">🗑️</button>` : ''}
+                  ${(!canCurrentUserEditTasks() && !canCurrentUserDelete()) ? `<span class="text-[10px] muted-text">🔒</span>` : ''}
+                </div>
               </td>
             </tr>
           `).join('');
@@ -5641,15 +6100,42 @@
         'settings': '⚙️ تنظیمات'
       };
 
+      document.querySelectorAll('.admin-user-sort-ind').forEach(ind => {
+        const col = ind.getAttribute('data-ind');
+        ind.textContent = col === adminUserSort.col ? (adminUserSort.dir === 'asc' ? '▲' : '▼') : '';
+      });
+
+      const sortedUsers = [...users].sort((a, b) => {
+        const mult = adminUserSort.dir === 'asc' ? 1 : -1;
+        let cmp = 0;
+        if (adminUserSort.col === 'username') {
+          cmp = String(a.username || '').localeCompare(String(b.username || ''), 'en');
+        } else if (adminUserSort.col === 'displayName') {
+          cmp = String(a.displayName || '').localeCompare(String(b.displayName || ''), 'fa');
+        } else if (adminUserSort.col === 'role') {
+          cmp = String(a.role || '').localeCompare(String(b.role || ''), 'en');
+        } else if (adminUserSort.col === 'lastLogin') {
+          const la = (a.lastLogin && a.lastLogin !== '-') ? normalizeDateToJalaliString(a.lastLogin) : '';
+          const lb = (b.lastLogin && b.lastLogin !== '-') ? normalizeDateToJalaliString(b.lastLogin) : '';
+          cmp = la.localeCompare(lb);
+        } else if (adminUserSort.col === 'loginCount') {
+          cmp = (Number(a.loginCount) || 0) - (Number(b.loginCount) || 0);
+        } else if (adminUserSort.col === 'active') {
+          cmp = (a.active !== false ? 1 : 0) - (b.active !== false ? 1 : 0);
+        }
+        return cmp * mult;
+      });
+
       const usersBody = document.getElementById('adminUsersTableBody');
       if (usersBody) {
-        if (users.length === 0) {
+        if (sortedUsers.length === 0) {
           usersBody.innerHTML = `<tr><td colspan="11" class="text-center py-6 muted-text">هیچ کاربری ثبت نشده است.</td></tr>`;
         } else {
-          usersBody.innerHTML = users.map(u => {
+          usersBody.innerHTML = sortedUsers.map(u => {
             const emp = getEmployeeById(u.employeeId);
             const isAdm = u.role === 'admin' || String(u.username || '').toLowerCase() === 'shayan';
             const canEditT = isAdm || u.canEditTasks === true;
+            const normLastLogin = (u.lastLogin && u.lastLogin !== '-') ? normalizeDateToJalaliString(u.lastLogin) : '-';
             const permsHtml = isAdm
               ? `<span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-600 dark:text-rose-300 font-extrabold text-[10px]">🌟 دسترسی کامل به تمام بخش‌ها</span>`
               : (u.allowedTabs || ['my-portal']).map(t => `<span class="inline-block px-1.5 py-0.2 rounded subtle-bg border border-slate-300 dark:border-slate-600 text-[10px] font-bold m-0.5">${tabBadgeNames[t] || t}</span>`).join('');
@@ -5684,8 +6170,8 @@
                   }
                 </td>
                 <td class="whitespace-nowrap text-xs font-bold">
-                  ${u.lastLogin && u.lastLogin !== '-'
-                    ? `<span class="text-emerald-600 dark:text-emerald-400">🕒 ${toPersianDigits(u.lastLogin)}</span>`
+                  ${normLastLogin && normLastLogin !== '-'
+                    ? `<span class="text-emerald-600 dark:text-emerald-400">🕒 ${toPersianDigits(normLastLogin)}</span>`
                     : `<span class="muted-text text-[11px]">هنوز وارد نشده</span>`
                   }
                 </td>
@@ -5698,9 +6184,9 @@
                 </td>
                 <td class="text-center whitespace-nowrap">
                   <div class="inline-flex items-center gap-1">
-                    <button type="button" data-action="edit-user-account" data-user-id="${u.id}" class="themed-btn px-2 py-1 rounded text-[11px] font-bold" title="ویرایش رمز و سطح دسترسی">✏️ رمز / دسترسی</button>
+                    <button type="button" data-action="edit-user-account" data-user-id="${u.id}" class="themed-btn p-1.5 rounded text-xs" title="ویرایش رمز و سطح دسترسی">✏️</button>
                     <button type="button" data-action="impersonate-user" data-user-id="${u.id}" class="bg-sky-600 hover:bg-sky-700 text-white px-2 py-1 rounded text-[10px] font-bold" title="مشاهده سامانه از دید این کاربر">👁️ تست دید کاربر</button>
-                    ${u.username !== 'shayan' ? `<button type="button" data-action="delete-user-account" data-user-id="${u.id}" class="themed-btn px-1.5 py-1 rounded text-xs hover:text-rose-500" title="حذف اکانت">🗑️</button>` : ''}
+                    ${u.username !== 'shayan' ? `<button type="button" data-action="delete-user-account" data-user-id="${u.id}" class="themed-btn p-1.5 rounded text-xs hover:text-rose-500" title="حذف اکانت">🗑️</button>` : ''}
                   </div>
                 </td>
               </tr>
@@ -5709,16 +6195,40 @@
         }
       }
 
-      // Render Audit Log Table
+      // Render Sortable Audit Log Table (All Dates Normalized to Solar Hijri / Shamsi)
+      document.querySelectorAll('.audit-sort-ind').forEach(ind => {
+        const col = ind.getAttribute('data-ind');
+        ind.textContent = col === auditSort.col ? (auditSort.dir === 'asc' ? '▲' : '▼') : '';
+      });
+
       const q = (document.getElementById('auditLogSearchInput')?.value || '').trim().toLowerCase();
       const typeFilter = document.getElementById('auditLogFilterType')?.value || 'all';
       const filteredLogs = logs.filter(l => {
+        if (!l) return false;
+        if (l.date) l.date = normalizeDateToJalaliString(l.date).split(' ')[0];
         if (typeFilter !== 'all' && l.type !== typeFilter) return false;
         if (q) {
           const hay = `${l.date} ${l.time} ${l.user} ${l.type} ${l.details}`.toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
+      });
+
+      const sortedLogs = [...filteredLogs].sort((a, b) => {
+        const mult = auditSort.dir === 'asc' ? 1 : -1;
+        let cmp = 0;
+        if (auditSort.col === 'date') {
+          const dCmp = compareJalaliStrings(a.date || '1405/01/01', b.date || '1405/01/01');
+          if (dCmp !== 0) cmp = dCmp;
+          else cmp = String(a.time || '').localeCompare(String(b.time || ''));
+        } else if (auditSort.col === 'user') {
+          cmp = String(a.user || '').localeCompare(String(b.user || ''), 'fa');
+        } else if (auditSort.col === 'type') {
+          cmp = String(a.type || '').localeCompare(String(b.type || ''), 'fa');
+        } else if (auditSort.col === 'details') {
+          cmp = String(a.details || '').localeCompare(String(b.details || ''), 'fa');
+        }
+        return cmp * mult;
       });
 
       const typeBadgeMap = {
@@ -5731,20 +6241,23 @@
 
       const auditBody = document.getElementById('adminAuditLogTableBody');
       if (auditBody) {
-        if (filteredLogs.length === 0) {
+        if (sortedLogs.length === 0) {
           auditBody.innerHTML = `<tr><td colspan="4" class="text-center py-6 muted-text">هیچ رویدادی با این فیلتر در تاریخچه ثبت نشده است.</td></tr>`;
         } else {
-          auditBody.innerHTML = filteredLogs.slice(0, 250).map(l => `
-            <tr>
-              <td class="whitespace-nowrap font-mono text-xs font-bold">
-                <div>📅 ${toPersianDigits(l.date)}</div>
-                <div class="text-[10px] muted-text">🕒 ساعت ${toPersianDigits(l.time || '')}</div>
-              </td>
-              <td class="font-extrabold text-xs">${escapeHtml(l.user || 'سیستم')}</td>
-              <td class="whitespace-nowrap">${typeBadgeMap[l.type] || escapeHtml(l.type)}</td>
-              <td class="text-xs leading-relaxed">${escapeHtml(l.details)}</td>
-            </tr>
-          `).join('');
+          auditBody.innerHTML = sortedLogs.slice(0, 300).map(l => {
+            const jDate = normalizeDateToJalaliString(l.date || '').split(' ')[0];
+            return `
+              <tr>
+                <td class="whitespace-nowrap font-mono text-xs font-bold">
+                  <div>📅 ${toPersianDigits(jDate)}</div>
+                  <div class="text-[10px] muted-text">🕒 ساعت ${toPersianDigits(l.time || '')}</div>
+                </td>
+                <td class="font-extrabold text-xs">${escapeHtml(l.user || 'سیستم')}</td>
+                <td class="whitespace-nowrap">${typeBadgeMap[l.type] || escapeHtml(l.type)}</td>
+                <td class="text-xs leading-relaxed">${escapeHtml(l.details)}</td>
+              </tr>
+            `;
+          }).join('');
         }
       }
 
@@ -5842,6 +6355,7 @@
               appState = normalizeState(data.state);
               if (keepLogo) appState.settings.customLogo = keepLogo;
               ensureDefaultTeamAccounts(true);
+              primeEntityDigestCache();
               try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch (e) {}
               renderAll();
             }
@@ -5946,6 +6460,7 @@
               smartMergeIntoCurrentState({ auditLogs: prevAuditLogs });
             }
             ensureDefaultTeamAccounts(true);
+            primeEntityDigestCache();
             saveLocalRollingBackup('دریافت از سرور');
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch (e) {}
             renderAll();
@@ -6395,16 +6910,50 @@
       });
     }
 
-    function openTaskModalForEdit(taskId, defaultDate = null, defaultEmpId = null) {
+    function openTaskModalForEdit(taskId, defaultDate = null, defaultEmpId = null, defaultProjectName = null) {
       if (taskId && !canCurrentUserEditTasks()) {
         showToast('🔒 مجوز «ویرایش وظایف» برای حساب شما فعال نیست. برای ثبت گزارش یا تغییر وضعیت از دکمه‌های مربوطه استفاده کنید.', 'error');
         return;
       }
+      populateDropdowns();
       const form = document.getElementById('formTask');
       form.reset();
       const coSelect = document.getElementById('taskFormCoAssigneeSelect');
       const coCustom = document.getElementById('taskFormCoAssigneeCustom');
       coCustom.classList.add('hidden');
+
+      const projSelect = document.getElementById('taskFormProjectSelect');
+      const projCustomInput = document.getElementById('taskFormProject');
+      if (projCustomInput) projCustomInput.classList.add('hidden');
+
+      const setProjectSelectValue = (projNameRaw) => {
+        const pName = String(projNameRaw || 'عمومی').trim() || 'عمومی';
+        if (!projSelect) {
+          if (projCustomInput) projCustomInput.value = pName;
+          return;
+        }
+        const hasOpt = Array.from(projSelect.options).some(o => o.value === pName && o.value !== '__custom__');
+        if (hasOpt) {
+          projSelect.value = pName;
+          if (projCustomInput) {
+            projCustomInput.value = pName;
+            projCustomInput.classList.add('hidden');
+          }
+        } else {
+          // Dynamically add option so existing/custom project is selectable cleanly
+          const newOpt = document.createElement('option');
+          newOpt.value = pName;
+          newOpt.textContent = `🚀 ${pName}`;
+          const customOpt = projSelect.querySelector('option[value="__custom__"]');
+          if (customOpt) projSelect.insertBefore(newOpt, customOpt);
+          else projSelect.appendChild(newOpt);
+          projSelect.value = pName;
+          if (projCustomInput) {
+            projCustomInput.value = pName;
+            projCustomInput.classList.add('hidden');
+          }
+        }
+      };
 
       if (taskId) {
         const t = appState.tasks.find(x => x.id === taskId);
@@ -6426,7 +6975,8 @@
           coSelect.value = '';
         }
 
-        document.getElementById('taskFormProject').value = t.project || '';
+        const matchedProj = t.projectId ? (appState.projects || []).find(p => p.id === t.projectId) : null;
+        setProjectSelectValue(matchedProj ? matchedProj.name : (t.project || 'عمومی'));
         document.getElementById('taskFormCategory').value = t.category || '';
         document.getElementById('taskFormPriority').value = t.priority || 'high';
         document.getElementById('taskFormStatus').value = t.status || 'in-progress';
@@ -6435,7 +6985,7 @@
         document.getElementById('taskFormWorkedHours').value = Math.floor(totalMins / 60);
         document.getElementById('taskFormWorkedMinutes').value = totalMins % 60;
         document.getElementById('taskFormCoWorkedTime').value = t.coWorkedMinutes ? formatMinutesToHHMM(t.coWorkedMinutes, false) : '';
-        document.getElementById('taskFormDeadline').value = t.deadline || appState.settings.currentSimDate;
+        document.getElementById('taskFormDeadline').value = t.deadline || getRealTodayJalaliString();
         document.getElementById('taskFormDesc').value = t.description || '';
         document.getElementById('taskFormLastNote').value = t.lastNote || '';
       } else {
@@ -6444,8 +6994,15 @@
         document.getElementById('taskFormWorkedHours').value = 0;
         document.getElementById('taskFormWorkedMinutes').value = 0;
         document.getElementById('taskFormCoWorkedTime').value = '';
-        document.getElementById('taskFormDeadline').value = defaultDate || appState.settings.currentSimDate || '1405/08/06';
+        document.getElementById('taskFormDeadline').value = defaultDate || getRealTodayJalaliString();
         if (defaultEmpId) document.getElementById('taskFormAssignee').value = defaultEmpId;
+        if (defaultProjectName) {
+          setProjectSelectValue(defaultProjectName);
+        } else if ((appState.projects || []).length > 0) {
+          setProjectSelectValue(appState.projects[0].name);
+        } else {
+          setProjectSelectValue('عمومی');
+        }
       }
       updateTaskFormWorkedPreview();
       openModal('modalTask');
@@ -6527,8 +7084,8 @@
             <p class="text-xs leading-relaxed whitespace-pre-line font-medium">${l.note}</p>
           </div>
           <div class="inline-flex items-center gap-1 shrink-0">
-            ${canCurrentUserEditTasks() ? `<button type="button" data-action="edit-task-log-item" data-task-id="${task.id}" data-log-idx="${idx}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold hover:text-sky-500" title="ویرایش این گزارش">✏️ ویرایش</button>` : ''}
-            ${canCurrentUserDelete() ? `<button type="button" data-action="delete-task-log-item" data-task-id="${task.id}" data-log-idx="${idx}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold hover:text-rose-500" title="حذف این گزارش">🗑️ حذف</button>` : ""}
+            ${canCurrentUserEditTasks() ? `<button type="button" data-action="edit-task-log-item" data-task-id="${task.id}" data-log-idx="${idx}" class="themed-btn p-1 rounded text-xs hover:text-sky-500" title="ویرایش این گزارش">✏️</button>` : ''}
+            ${canCurrentUserDelete() ? `<button type="button" data-action="delete-task-log-item" data-task-id="${task.id}" data-log-idx="${idx}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف این گزارش">🗑️</button>` : ""}
           </div>
         </div>
       `).join('');
@@ -6561,11 +7118,26 @@
           appState = createCleanInitialState();
         }
       } catch (e) {}
+      primeEntityDigestCache();
       const savedCloud = getStoredCloudApiUrl();
       renderAll();
       if (savedCloud && currentUserSession) {
         pullStateFromCloudBackend(true);
       }
+
+      // Automatic live date check (ensures if user stays logged in across days, today's date updates automatically)
+      setInterval(() => {
+        if (!appState || !appState.settings) return;
+        const realToday = getRealTodayJalaliString();
+        if (appState.settings.currentSimDate !== realToday) {
+          appState.settings.currentSimDate = realToday;
+          const p = parseJalaliString(realToday);
+          calendarState.year = p.jy;
+          calendarState.month = p.jm;
+          calendarState.day = p.jd;
+          renderAll();
+        }
+      }, 30000);
 
       // Protect against accidental tab close or refresh mid-sync
       window.addEventListener('beforeunload', (ev) => {
@@ -6661,6 +7233,19 @@
         }
       });
 
+      // Project Select Custom Toggle in Task Modal
+      document.getElementById('taskFormProjectSelect').addEventListener('change', (e) => {
+        const projInput = document.getElementById('taskFormProject');
+        if (e.target.value === '__custom__') {
+          projInput.value = '';
+          projInput.classList.remove('hidden');
+          projInput.focus();
+        } else {
+          projInput.value = e.target.value;
+          projInput.classList.add('hidden');
+        }
+      });
+
       // Navigation Tabs
       document.querySelectorAll('.nav-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
@@ -6671,17 +7256,9 @@
         syncToRealToday(true);
       });
 
-      // Working Date Input
-      document.getElementById('simDateInput').addEventListener('change', (e) => {
-        const cleanDate = toEnglishDigits(e.target.value.trim());
-        appState.settings.currentSimDate = cleanDate;
-        const parsed = parseJalaliString(cleanDate);
-        calendarState.year = parsed.jy;
-        calendarState.month = parsed.jm;
-        calendarState.day = parsed.jd;
-        saveAppState(false, false);
-        renderAll();
-        showToast(`تاریخ کاری به ${formatJalaliHuman(cleanDate)} تغییر یافت.`, 'info');
+      // Working Date is strictly locked to real-life Today
+      document.getElementById('simDateInput').addEventListener('change', () => {
+        syncToRealToday(false);
       });
 
       // Empty Banner Quick Actions
@@ -6711,7 +7288,9 @@
         const title = document.getElementById('inlineTaskTitle').value.trim();
         if (!title) return;
         const assigneeId = document.getElementById('inlineTaskAssignee').value;
-        const deadline = toEnglishDigits(document.getElementById('inlineTaskDeadline').value.trim()) || appState.settings.currentSimDate;
+        const inlineProjName = document.getElementById('inlineTaskProject')?.value || 'عمومی';
+        const matchedInlineProj = (appState.projects || []).find(p => p.name === inlineProjName);
+        const deadline = toEnglishDigits(document.getElementById('inlineTaskDeadline').value.trim()) || getRealTodayJalaliString();
         const workedRaw = document.getElementById('inlineTaskWorkedTime').value.trim();
         const workedMinutes = parseDurationToMinutes(workedRaw);
         const priority = document.getElementById('inlineTaskPriority').value;
@@ -6727,7 +7306,8 @@
           title,
           assigneeId,
           coAssignee: '',
-          project: 'عمومی',
+          project: inlineProjName,
+          projectId: matchedInlineProj ? matchedInlineProj.id : '',
           category: 'اجرایی',
           priority,
           status: 'in-progress',
@@ -7501,6 +8081,28 @@
         const totalWorkedMins = (workedH * 60) + workedM;
         const coWorkedMins = parseDurationToMinutes(document.getElementById('taskFormCoWorkedTime').value.trim());
 
+        const projSelectVal = document.getElementById('taskFormProjectSelect')?.value || 'عمومی';
+        let chosenProjectName = projSelectVal === '__custom__'
+          ? (document.getElementById('taskFormProject').value.trim() || 'عمومی')
+          : (projSelectVal || 'عمومی');
+        let matchedProjObj = (appState.projects || []).find(p => String(p.name || '').trim() === chosenProjectName);
+        if (!matchedProjObj && chosenProjectName !== 'عمومی' && projSelectVal === '__custom__') {
+          const newProjObj = {
+            id: generateNextProjId(),
+            _uid: generateUniqueUid('prj'),
+            _updatedAt: Date.now(),
+            name: chosenProjectName,
+            type: document.getElementById('taskFormCategory').value.trim() || 'ساخت و تولید',
+            deadline: toEnglishDigits(document.getElementById('taskFormDeadline').value.trim()) || getRealTodayJalaliString(),
+            lead: getEmployeeById(document.getElementById('taskFormAssignee').value).name || '',
+            progress: Number(document.getElementById('taskFormProgress').value) || 0,
+            highlights: 'ایجاد شده به صورت خودکار هنگام ثبت وظیفه'
+          };
+          appState.projects = appState.projects || [];
+          appState.projects.unshift(newProjObj);
+          matchedProjObj = newProjObj;
+        }
+
         const existingTask = id ? appState.tasks.find(x => x.id === id) : null;
         const payload = {
           id: id || generateNextTaskId(),
@@ -7511,7 +8113,8 @@
           title: document.getElementById('taskFormTitle').value.trim(),
           assigneeId: document.getElementById('taskFormAssignee').value,
           coAssignee,
-          project: document.getElementById('taskFormProject').value.trim() || 'عمومی',
+          project: chosenProjectName,
+          projectId: matchedProjObj ? matchedProjObj.id : '',
           category: document.getElementById('taskFormCategory').value.trim() || 'اجرایی',
           priority: document.getElementById('taskFormPriority').value,
           status: document.getElementById('taskFormStatus').value,
@@ -7693,11 +8296,14 @@
         e.preventDefault();
         pushUndoSnapshot();
         const id = document.getElementById('projFormId').value;
+        const existingProj = id ? (appState.projects || []).find(x => x.id === id) : null;
+        const oldName = existingProj ? String(existingProj.name || '').trim() : '';
+        const newName = document.getElementById('projFormName').value.trim();
         const payload = {
           id: id || generateNextProjId(),
-          _uid: generateUniqueUid('prj'),
+          _uid: existingProj && existingProj._uid ? existingProj._uid : generateUniqueUid('prj'),
           _updatedAt: Date.now(),
-          name: document.getElementById('projFormName').value.trim(),
+          name: newName,
           type: document.getElementById('projFormType').value.trim(),
           deadline: toEnglishDigits(document.getElementById('projFormDeadline').value.trim()),
           lead: document.getElementById('projFormLead').value.trim(),
@@ -7707,8 +8313,22 @@
         if (id) {
           const idx = appState.projects.findIndex(x => x.id === id);
           if (idx >= 0) appState.projects[idx] = payload;
+          // Propagate project rename to all tasks & inventory linked to this project
+          (appState.tasks || []).forEach(t => {
+            if (t.projectId === id || (oldName && String(t.project || '').trim() === oldName)) {
+              t.projectId = id;
+              t.project = newName;
+              t._updatedAt = Date.now();
+            }
+          });
         } else {
           appState.projects.unshift(payload);
+          // Link any existing tasks with this exact project name
+          (appState.tasks || []).forEach(t => {
+            if (String(t.project || '').trim() === newName) {
+              t.projectId = payload.id;
+            }
+          });
         }
         recordAuditLog('task', `${id ? 'ویرایش پروژه' : 'تعریف پروژه جدید'} [${payload.id}]: «${payload.name}»`);
         saveAppState(true, false);
@@ -7719,16 +8339,25 @@
       document.getElementById('formMeeting').addEventListener('submit', (e) => {
         e.preventDefault();
         pushUndoSnapshot();
+        const id = document.getElementById('mtgFormId').value;
+        const existingMtg = id ? (appState.meetings || []).find(x => x.id === id) : null;
         const payload = {
-          id: `MTG-${Date.now()}`,
+          id: id || `MTG-${Date.now()}`,
+          _uid: existingMtg && existingMtg._uid ? existingMtg._uid : generateUniqueUid('mtg'),
+          _updatedAt: Date.now(),
           title: document.getElementById('mtgFormTitle').value.trim(),
           date: toEnglishDigits(document.getElementById('mtgFormDate').value.trim()),
           attendees: document.getElementById('mtgFormAttendees').value.trim(),
           summary: document.getElementById('mtgFormSummary').value.trim()
         };
         appState.meetings = appState.meetings || [];
-        appState.meetings.unshift(payload);
-        recordAuditLog('report', `ثبت صورت‌جلسه جدید [${payload.id}]: «${payload.title}»`);
+        if (id) {
+          const idx = appState.meetings.findIndex(x => x.id === id);
+          if (idx >= 0) appState.meetings[idx] = payload;
+        } else {
+          appState.meetings.unshift(payload);
+        }
+        recordAuditLog('report', `${id ? 'ویرایش صورت‌جلسه' : 'ثبت صورت‌جلسه جدید'} [${payload.id}]: «${payload.title}»`);
         saveAppState(true, false);
         renderAll();
         closeModal('modalMeeting');
@@ -8117,6 +8746,44 @@
           saveAppState(false, false);
           renderAll();
           showToast('ردیف کالا حذف شد.');
+        } else if (action === 'new-task-for-project') {
+          const pid = btn.getAttribute('data-proj-id');
+          const p = (appState.projects || []).find(x => x.id === pid);
+          openTaskModalForEdit(null, p && p.deadline ? p.deadline : getRealTodayJalaliString(), null, p ? p.name : null);
+        } else if (action === 'filter-tasks-by-project') {
+          const pName = btn.getAttribute('data-proj-name') || 'all';
+          switchTab('tasks');
+          populateDropdowns();
+          const pf = document.getElementById('filterTaskProject');
+          if (pf) {
+            pf.value = pName;
+            renderTasksGridView();
+          }
+        } else if (action === 'promote-project-name') {
+          const pName = (btn.getAttribute('data-proj-name') || '').trim();
+          if (!pName) return;
+          pushUndoSnapshot();
+          const newProj = {
+            id: generateNextProjId(),
+            _uid: generateUniqueUid('prj'),
+            _updatedAt: Date.now(),
+            name: pName,
+            type: 'ساخت و تولید',
+            deadline: getRealTodayJalaliString(),
+            lead: '',
+            progress: 20,
+            highlights: 'ایجاد شده از وظایف موجود در سامانه'
+          };
+          appState.projects = appState.projects || [];
+          appState.projects.unshift(newProj);
+          (appState.tasks || []).forEach(t => {
+            if (String(t.project || '').trim() === pName) {
+              t.projectId = newProj.id;
+            }
+          });
+          recordAuditLog('task', `ثبت پروژه رسمی جدید [${newProj.id}]: «${pName}»`);
+          saveAppState(true, false);
+          renderAll();
         } else if (action === 'edit-project') {
           const pid = btn.getAttribute('data-proj-id');
           const p = appState.projects.find(x => x.id === pid);
@@ -8133,21 +8800,52 @@
         } else if (action === 'delete-project') {
           if (!canCurrentUserDelete()) { showToast('حذف پروژه فقط توسط مدیر مجاز است.', 'error'); return; }
           const pid = btn.getAttribute('data-proj-id');
-          pushUndoSnapshot();
-          recordTombstoneDeletion('projects', pid);
-          appState.projects = appState.projects.filter(x => x.id !== pid);
-          saveAppState(false, false);
-          renderAll();
-          showToast('پروژه حذف شد.');
+          const p = appState.projects.find(x => x.id === pid);
+          askDeleteConfirmation(
+            '⚠️ تایید حذف پروژه',
+            `آیا از حذف پروژه «${p ? p.name : pid}» اطمینان دارید؟ (وظایف ثبت‌شده در جدول وظایف حفظ خواهند شد)`,
+            () => {
+              pushUndoSnapshot();
+              recordTombstoneDeletion('projects', pid);
+              if (p && p._uid) recordTombstoneDeletion('projects', p._uid);
+              appState.projects = appState.projects.filter(x => x.id !== pid);
+              (appState.tasks || []).forEach(t => {
+                if (t.projectId === pid) delete t.projectId;
+              });
+              recordAuditLog('task', `حذف پروژه [${pid}]: «${p ? p.name : ''}»`);
+              saveAppState(false, false);
+              renderAll();
+              showToast('پروژه حذف شد (وظایف مرتبط در جدول وظایف محفوظ ماندند).');
+            }
+          );
+        } else if (action === 'edit-meeting') {
+          const mid = btn.getAttribute('data-mtg-id');
+          const m = (appState.meetings || []).find(x => x.id === mid);
+          if (m) {
+            document.getElementById('mtgFormId').value = m.id;
+            document.getElementById('mtgFormTitle').value = m.title || '';
+            document.getElementById('mtgFormDate').value = m.date || getRealTodayJalaliString();
+            document.getElementById('mtgFormAttendees').value = m.attendees || '';
+            document.getElementById('mtgFormSummary').value = m.summary || '';
+            openModal('modalMeeting');
+          }
         } else if (action === 'delete-meeting') {
           if (!canCurrentUserDelete()) { showToast('حذف صورت‌جلسه فقط توسط مدیر مجاز است.', 'error'); return; }
           const mid = btn.getAttribute('data-mtg-id');
-          pushUndoSnapshot();
-          recordTombstoneDeletion('meetings', mid);
-          appState.meetings = (appState.meetings || []).filter(x => x.id !== mid);
-          saveAppState(false, false);
-          renderAll();
-          showToast('صورت‌جلسه حذف شد.');
+          const m = (appState.meetings || []).find(x => x.id === mid);
+          askDeleteConfirmation(
+            '⚠️ تایید حذف صورت‌جلسه',
+            `آیا از حذف صورت‌جلسه «${m ? m.title : mid}» اطمینان دارید؟`,
+            () => {
+              pushUndoSnapshot();
+              recordTombstoneDeletion('meetings', mid);
+              appState.meetings = (appState.meetings || []).filter(x => x.id !== mid);
+              recordAuditLog('report', `حذف صورت‌جلسه [${mid}]: «${m ? m.title : ''}»`);
+              saveAppState(false, false);
+              renderAll();
+              showToast('صورت‌جلسه حذف شد.');
+            }
+          );
         } else if (action === 'load-calc-preset') {
           const pid = btn.getAttribute('data-preset-id');
           document.getElementById('calcPresetSelect').value = pid;
@@ -8805,7 +9503,8 @@
         const empId = getCurrentUserEmployeeId();
         const emp = getEmployeeById(empId);
         const proj = document.getElementById('portalQuickTaskProject').value.trim() || 'عمومی';
-        const deadline = toEnglishDigits(document.getElementById('portalQuickTaskDeadline').value.trim()) || appState.settings.currentSimDate;
+        const matchedPortalProj = (appState.projects || []).find(p => p.name === proj);
+        const deadline = toEnglishDigits(document.getElementById('portalQuickTaskDeadline').value.trim()) || getRealTodayJalaliString();
         const prio = document.getElementById('portalQuickTaskPriority').value;
         const newId = generateNextTaskId();
 
@@ -8820,6 +9519,7 @@
           assigneeId: empId,
           coAssignee: '',
           project: proj,
+          projectId: matchedPortalProj ? matchedPortalProj.id : '',
           category: 'اجرایی',
           priority: prio,
           status: 'in-progress',
@@ -9022,6 +9722,101 @@
           el.addEventListener('input', renderAdminView);
           el.addEventListener('change', renderAdminView);
         }
+      });
+
+      // Sortable Admin Audit Log Headers
+      document.querySelectorAll('[data-audit-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.getAttribute('data-audit-sort');
+          if (auditSort.col === col) {
+            auditSort.dir = auditSort.dir === 'asc' ? 'desc' : 'asc';
+          } else {
+            auditSort.col = col;
+            auditSort.dir = col === 'date' ? 'desc' : 'asc';
+          }
+          renderAdminView();
+        });
+      });
+
+      // Sortable Admin Users Table Headers
+      document.querySelectorAll('[data-admin-user-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.getAttribute('data-admin-user-sort');
+          if (adminUserSort.col === col) {
+            adminUserSort.dir = adminUserSort.dir === 'asc' ? 'desc' : 'asc';
+          } else {
+            adminUserSort.col = col;
+            adminUserSort.dir = 'asc';
+          }
+          renderAdminView();
+        });
+      });
+
+      // Project Search & Filter Listeners
+      ['projectSearchInput', 'filterProjectTaskStatus'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', renderProjectsAndMeetingsView);
+          el.addEventListener('change', renderProjectsAndMeetingsView);
+        }
+      });
+
+      // Delegated Submit Listener for Inline Quick Task Adder inside Project Cards
+      document.body.addEventListener('submit', (e) => {
+        const projForm = e.target.closest('[data-project-quick-task-form]');
+        if (!projForm) return;
+        e.preventDefault();
+        const projId = projForm.getAttribute('data-project-quick-task-form');
+        const projObj = (appState.projects || []).find(p => p.id === projId);
+        if (!projObj) return;
+
+        const titleInp = projForm.querySelector('[name="taskTitle"]');
+        const assigneeInp = projForm.querySelector('[name="taskAssignee"]');
+        const deadlineInp = projForm.querySelector('[name="taskDeadline"]');
+        const prioInp = projForm.querySelector('[name="taskPriority"]');
+
+        const title = (titleInp?.value || '').trim();
+        if (!title) return;
+        const assigneeId = assigneeInp?.value || getCurrentUserEmployeeId();
+        const deadline = toEnglishDigits((deadlineInp?.value || '').trim()) || projObj.deadline || getRealTodayJalaliString();
+        const priority = prioInp?.value || 'high';
+        const newId = generateNextTaskId();
+        const emp = getEmployeeById(assigneeId);
+
+        pushUndoSnapshot();
+        appState.tasks.unshift({
+          id: newId,
+          _uid: generateUniqueUid('tsk'),
+          _updatedAt: Date.now(),
+          _createdClientTs: Date.now(),
+          _createdByRole: isAdminUser() ? 'admin' : 'employee',
+          title,
+          assigneeId,
+          coAssignee: '',
+          project: projObj.name,
+          projectId: projObj.id,
+          category: projObj.type || 'اجرایی',
+          priority,
+          status: 'in-progress',
+          progress: 10,
+          workedMinutes: 0,
+          workedTime: '00:00',
+          startDate: getRealTodayJalaliString(),
+          deadline,
+          description: '',
+          lastNote: `ثبت‌شده در بخش پروژه «${projObj.name}»`,
+          logs: [{
+            date: getRealTodayJalaliString(),
+            time: new Date().toTimeString().slice(0, 5),
+            workedMinutes: 0,
+            user: emp.name,
+            note: `ایجاد وظیفه در پروژه «${projObj.name}»`
+          }]
+        });
+        recordAuditLog('task', `افزودن وظیفه [${newId}] «${title}» در پروژه «${projObj.name}» برای ${emp.name}`);
+        if (titleInp) titleInp.value = '';
+        saveAppState(true, false);
+        renderAll();
       });
 
       document.getElementById('btnExportAuditCSV').addEventListener('click', () => {
