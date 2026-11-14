@@ -89,6 +89,10 @@
       font-family: 'Vazirmatn', Tahoma, system-ui, -apple-system, sans-serif;
     }
 
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
@@ -96,6 +100,19 @@
       margin: 0;
       padding: 0;
       overflow-x: hidden;
+      position: relative;
+    }
+    body.auth-locked {
+      overflow: hidden !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 100dvh !important;
+    }
+    body.auth-locked #mainTopHeader,
+    body.auth-locked main,
+    body.auth-locked #impersonationBanner,
+    body.auth-locked #syncSafetyNoticeBar {
+      display: none !important;
     }
 
     /* Contrast-safe form controls across both Light and Dark modes */
@@ -295,13 +312,10 @@
       header#mainTopHeader h1 {
         font-size: 12.5px;
       }
-      /* Keep live yellow date visible on mobile while hiding role tag so top bar fits sleekly */
+      /* Hide working date picker bar & role tag on mobile so top bar fits in a single sleek line */
+      #topWorkingDateBar,
       #headerUserRoleTag {
         display: none !important;
-      }
-      #topWorkingDateBar {
-        padding: 2px 6px !important;
-        font-size: 10px !important;
       }
       body.non-admin-mode #topQuickLeftButtons {
         display: none !important;
@@ -401,7 +415,7 @@
     }
   </style>
 </head>
-<body data-accent="excel-green" data-mode="light" data-density="compact" class="min-h-screen flex flex-col">
+<body data-accent="excel-green" data-mode="light" data-density="compact" class="min-h-screen flex flex-col auth-locked">
 
   <!-- TOP RIBBON HEADER (SLEEK SINGLE-ROW OVERHAUL) -->
   <header id="mainTopHeader" class="brand-header shadow-sm sticky top-0 z-30">
@@ -416,6 +430,7 @@
           </div>
         </div>
         <h1 class="font-extrabold text-sm md:text-base tracking-tight text-white whitespace-nowrap">آبتانو</h1>
+        <span id="liveTodayBadgeMobile" class="md:hidden font-extrabold text-amber-300 text-[10px] bg-black/25 px-1.5 py-0.5 rounded border border-amber-400/30 whitespace-nowrap select-none"></span>
         <p class="hidden"><strong id="headerSupervisorName"></strong></p>
 
         <div id="topQuickLeftButtons" class="flex items-center gap-1 shrink-0 mr-1">
@@ -431,7 +446,7 @@
       <!-- Left Cluster: Date/Undo + Sync Status Button + Theme/Exports + User & Logout -->
       <div class="flex items-center gap-1 shrink-0 mr-auto">
         <!-- Live Current Date (Yellow Text, Read-Only) & Undo/Redo Controls -->
-        <div id="topWorkingDateBar" class="flex items-center gap-1.5 bg-black/25 px-2.5 py-1 rounded-md border border-amber-400/30 text-[11px] text-amber-300 shrink-0" title="تاریخ روز سامانه (همواره به روز)">
+        <div id="topWorkingDateBar" class="hidden md:flex items-center gap-1.5 bg-black/25 px-2.5 py-1 rounded-md border border-amber-400/30 text-[11px] text-amber-300 shrink-0" title="تاریخ روز سامانه (همواره به روز)">
           <span>📅</span>
           <span id="liveTodayBadge" class="font-extrabold text-amber-300 text-[11px] whitespace-nowrap select-none">پنجشنبه ۷ آبان ۱۴۰۵</span>
           <input type="hidden" id="simDateInput" value="1405/08/07" dir="ltr" readonly />
@@ -445,8 +460,8 @@
         </div>
 
         <!-- Unified Cloud Sync Button & Live Status Indicator -->
-        <button type="button" id="btnCloudSyncNow" class="bg-sky-500/35 hover:bg-sky-500/55 text-white font-extrabold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 border border-sky-300/40 whitespace-nowrap shrink-0" title="وضعیت و همگام‌سازی فوری اطلاعات با سرور مرکزی">
-          <span id="cloudSyncIcon">🔄</span><span id="cloudSyncStatusBadge" class="text-[10px] sm:text-[11px]">همگام‌سازی سرور</span>
+        <button type="button" id="btnCloudSyncNow" class="bg-sky-500/35 hover:bg-sky-500/55 text-white font-extrabold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 border border-sky-300/40 whitespace-nowrap shrink-0" title="وضعیت و همگام‌سازی خودکار با سرور مرکزی">
+          <span id="cloudSyncIcon">🔄</span><span id="cloudSyncStatusBadge" class="text-[10px] sm:text-[11px]">همگام ✓</span>
         </button>
 
         <button id="btnToggleDarkMode" class="bg-black/25 hover:bg-black/40 text-white font-bold px-2 py-1 rounded-md text-[11px] flex items-center gap-1 border border-white/20 shrink-0" title="تغییر حالت روشن / تیره">
@@ -640,11 +655,11 @@
       <!-- Quick Inline Task Adder Bar -->
       <form id="formQuickInlineTask" class="surface-card rounded-xl p-2.5 shadow-sm flex flex-wrap items-center gap-2 text-xs">
         <span class="font-extrabold px-1">⚡ ثبت سریع وظیفه:</span>
-        <input type="text" id="inlineTaskTitle" required placeholder="عنوان وظیفه جدید را بنویسید و Enter بزنید..." class="flex-1 min-w-[180px] rounded-lg px-3 py-1.5" />
-        <select id="inlineTaskProject" class="rounded-lg px-2.5 py-1.5 min-w-[135px] font-bold" title="پروژه مرتبط">
+        <input type="text" id="inlineTaskTitle" required placeholder="عنوان وظیفه جدید را بنویسید و Enter بزنید..." class="flex-1 min-w-[160px] rounded-lg px-3 py-1.5" />
+        <select id="inlineTaskProject" class="rounded-lg px-2.5 py-1.5 min-w-[125px] font-bold" title="پروژه مرتبط">
           <option value="عمومی">📁 پروژه: عمومی</option>
         </select>
-        <select id="inlineTaskAssignee" class="rounded-lg px-2.5 py-1.5 min-w-[125px]"></select>
+        <select id="inlineTaskAssignee" class="rounded-lg px-2.5 py-1.5 min-w-[120px]"></select>
         <div class="inline-flex items-center gap-1 subtle-bg px-2 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
           <span class="font-extrabold text-[11px] text-emerald-700 dark:text-emerald-400">ددلاین:</span>
           <input type="text" id="inlineTaskDeadline" dir="ltr" placeholder="1405/08/08" class="w-24 rounded px-1.5 py-1 font-mono text-center font-bold" />
@@ -997,24 +1012,24 @@
     <!-- ==========================================
          VIEW 6: PROJECTS, PROJECT TASKS & MEETING MINUTES HUB
          ========================================== -->
-    <section id="view-projects" class="tab-view hidden space-y-3.5">
+    <section id="view-projects" class="tab-view hidden space-y-3.5 max-w-full overflow-hidden">
       <!-- Projects KPI Strip -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="projectsKpiStrip"></div>
 
       <!-- Projects Top Action & Filter Bar -->
       <div class="surface-card rounded-xl p-3 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div class="flex flex-wrap items-center gap-2 flex-1">
-          <div class="relative min-w-[200px] flex-1 max-w-xs">
+        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+          <div class="relative w-full sm:w-auto sm:min-w-[200px] flex-1 max-w-xs">
             <input type="text" id="projectSearchInput" placeholder="جستجو در نام پروژه، مسئول، شرح یا وظایف پروژه..." class="w-full pl-3 pr-8 py-1.5 rounded-lg text-xs" />
             <span class="absolute right-2.5 top-2 muted-text">🔍</span>
           </div>
-          <select id="filterProjectTaskStatus" class="rounded-lg px-2.5 py-1.5 font-bold text-xs">
+          <select id="filterProjectTaskStatus" class="rounded-lg px-2.5 py-1.5 font-bold text-xs w-full sm:w-auto">
             <option value="all">📋 نمایش همه وظایف هر پروژه</option>
             <option value="open">⏳ فقط وظایف باز هر پروژه</option>
             <option value="completed">✅ فقط وظایف تکمیل‌شده</option>
           </select>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
           <button id="btnAddNewProject" class="brand-btn px-3.5 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1 shadow-xs">+ پروژه جدید</button>
           <button id="btnAddNewMeeting" class="brand-btn px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">+ ثبت صورت‌جلسه جدید</button>
         </div>
@@ -1022,16 +1037,16 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <!-- Active & Strategic Projects + Integrated Project Tasks (8 cols) -->
-        <div class="lg:col-span-8 space-y-3">
-          <div id="strategicProjectsGrid" class="space-y-3.5"></div>
+        <div class="lg:col-span-8 space-y-3 min-w-0">
+          <div id="strategicProjectsGrid" class="space-y-3.5 min-w-0"></div>
         </div>
 
         <!-- Meeting Minutes & Decisions Archive (4 cols) -->
-        <div class="lg:col-span-4 surface-card rounded-xl p-4 shadow-sm space-y-3 h-fit">
+        <div class="lg:col-span-4 surface-card rounded-xl p-4 shadow-sm space-y-3 h-fit min-w-0">
           <div class="flex items-center justify-between border-b pb-2.5 border-slate-200 dark:border-slate-700">
             <div>
               <h3 class="font-extrabold text-sm md:text-base flex items-center gap-2">
-                <span>🎙️</span><span>آرشیو صورت‌جلسات و مصوبات</span>
+                <span>🎙️</span><span>آرشیو صورت‌جلسات و مصوبات مدیریتی</span>
               </h3>
             </div>
           </div>
@@ -2344,8 +2359,8 @@
   <!-- ==========================================
        SECURE LOGIN GATE OVERLAY (صفحه ورود امن کاربران آبتانو)
        ========================================== -->
-  <div id="loginGateOverlay" class="fixed inset-0 z-50 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 flex items-center justify-center p-3 overflow-y-auto">
-    <div class="bg-slate-900/95 border border-emerald-500/30 rounded-3xl max-w-md w-full p-6 shadow-2xl text-white space-y-5 my-auto backdrop-blur-md">
+  <div id="loginGateOverlay" style="position:fixed; top:0; right:0; bottom:0; left:0; width:100%; max-width:100vw; height:100%; min-height:100dvh; z-index:9999;" class="fixed inset-0 z-50 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 flex items-center justify-center p-3 overflow-y-auto overflow-x-hidden">
+    <div class="bg-slate-900/95 border border-emerald-500/30 rounded-3xl max-w-md w-full mx-auto p-5 sm:p-6 shadow-2xl text-white space-y-5 my-auto backdrop-blur-md">
       <!-- Brand Header -->
       <div class="text-center space-y-2">
         <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-3xl mx-auto shadow-inner">
@@ -3066,7 +3081,12 @@
 
     function applyRBACToUI() {
       const loginOverlay = document.getElementById('loginGateOverlay');
-      if (!currentUserSession) {
+      const topHeader = document.getElementById('mainTopHeader');
+      const mainContainer = document.querySelector('main');
+      if (!currentUserSession || !currentUserSession.token) {
+        document.body.classList.add('auth-locked');
+        if (topHeader) topHeader.classList.add('hidden');
+        if (mainContainer) mainContainer.classList.add('hidden');
         document.querySelectorAll('.tab-view').forEach(sec => sec.classList.add('hidden'));
         if (loginOverlay) {
           loginOverlay.classList.remove('hidden');
@@ -3074,6 +3094,9 @@
         }
         return;
       }
+      document.body.classList.remove('auth-locked');
+      if (topHeader) topHeader.classList.remove('hidden');
+      if (mainContainer) mainContainer.classList.remove('hidden');
       if (loginOverlay) {
         loginOverlay.classList.add('hidden');
         loginOverlay.classList.remove('flex');
@@ -4133,7 +4156,9 @@
 
       const simDate = getRealTodayJalaliString();
       appState.settings.currentSimDate = simDate;
-      document.getElementById('liveTodayBadge').textContent = `${formatJalaliHuman(simDate)} (${toPersianDigits(simDate)})`;
+      document.getElementById('liveTodayBadge').textContent = formatJalaliHuman(simDate);
+      const mobDateEl = document.getElementById('liveTodayBadgeMobile');
+      if (mobDateEl) mobDateEl.textContent = formatShortSolarDeadline(simDate);
       document.getElementById('simDateInput').value = simDate;
       const inlineDlEl = document.getElementById('inlineTaskDeadline');
       if (inlineDlEl && !inlineDlEl.value) inlineDlEl.value = simDate;
@@ -5474,7 +5499,7 @@
         projectsHtml = `
           <div class="surface-card p-6 rounded-xl border border-dashed text-center space-y-2">
             <div class="text-sm font-extrabold">پروژه‌ای برای نمایش یافت نشد</div>
-            <p class="text-xs muted-text">با کلیک روی دکمه «🚀 + تعریف پروژه جدید» اولین پروژه را ایجاد کنید و وظایف مرتبط با آن را ثبت نمایید.</p>
+            <p class="text-xs muted-text">با کلیک روی دکمه «+ پروژه جدید» اولین پروژه را ایجاد کنید و وظایف مرتبط با آن را ثبت نمایید.</p>
           </div>
         `;
       } else {
@@ -5494,18 +5519,18 @@
           const dlInputId = `projQuickDeadline_${String(p.id).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 
           return `
-            <div class="surface-card rounded-2xl p-4 shadow-sm border-r-4 border-r-emerald-600 space-y-3">
+            <div class="surface-card rounded-2xl p-3.5 sm:p-4 shadow-sm border-r-4 border-r-emerald-600 space-y-3 min-w-0 max-w-full overflow-hidden">
               <!-- Project Header -->
               <div class="flex flex-wrap items-start justify-between gap-2 border-b pb-3 border-slate-200 dark:border-slate-700">
-                <div class="space-y-1">
+                <div class="space-y-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-1.5">
                     <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded subtle-bg border border-slate-300 dark:border-slate-600">${escapeHtml(p.id)}</span>
                     <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">${escapeHtml(p.type || 'پروژه')}</span>
                     ${p.lead ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-300">👤 مسئول: ${escapeHtml(p.lead)}</span>` : ''}
                     <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300">📅 ددلاین هدف: ${formatJalaliHuman(p.deadline)}</span>
                   </div>
-                  <h3 class="font-black text-sm md:text-base">${escapeHtml(p.name)}</h3>
-                  ${p.highlights ? `<p class="text-xs muted-text leading-relaxed">${escapeHtml(p.highlights)}</p>` : ''}
+                  <h3 class="font-black text-sm md:text-base break-words">${escapeHtml(p.name)}</h3>
+                  ${p.highlights ? `<p class="text-xs muted-text leading-relaxed break-words">${escapeHtml(p.highlights)}</p>` : ''}
                 </div>
 
                 <div class="flex flex-wrap items-center gap-1.5 shrink-0">
@@ -5521,14 +5546,14 @@
               </div>
 
               <!-- Project Progress & Stats Strip -->
-              <div class="flex flex-wrap items-center justify-between gap-3 subtle-bg px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="font-bold">📊 وضعیت وظایف پروژه:</span>
+              <div class="flex flex-wrap items-center justify-between gap-2 subtle-bg px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="font-bold">📊 وظایف:</span>
                   <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 font-bold">✅ ${toPersianDigits(doneCount)} تکمیل</span>
                   <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 font-bold">⏳ ${toPersianDigits(openCount)} باز</span>
-                  <span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-300 font-mono font-bold">⏱️ کارکرد: ${formatMinutesToHHMM(workedMins)}</span>
+                  <span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-600 dark:text-sky-300 font-mono font-bold">⏱️ ${formatMinutesToHHMM(workedMins)}</span>
                 </div>
-                <div class="flex items-center gap-2 min-w-[180px] flex-1 max-w-xs">
+                <div class="flex items-center gap-2 min-w-[140px] flex-1 max-w-xs">
                   <div class="flex-1 h-2.5 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div class="h-full bg-emerald-600 transition-all" style="width:${effectiveProg}%"></div>
                   </div>
@@ -5538,9 +5563,9 @@
 
               <!-- Inline Quick Add Task directly inside this Project -->
               <form data-project-quick-task-form="${escapeHtml(p.id)}" class="subtle-bg p-2 rounded-xl border border-emerald-500/30 flex flex-wrap items-center gap-1.5 text-xs">
-                <span class="font-extrabold text-emerald-700 dark:text-emerald-400 px-1">➕ افزودن سریع وظیفه به پروژه:</span>
-                <input type="text" name="taskTitle" required placeholder="عنوان وظیفه جدید برای «${escapeHtml(p.name)}»..." class="flex-1 min-w-[160px] rounded-lg px-2.5 py-1 font-bold" />
-                <select name="taskAssignee" class="rounded-lg px-2 py-1 font-bold min-w-[115px]">${empSelectOptions}</select>
+                <span class="font-extrabold text-emerald-700 dark:text-emerald-400 px-1">➕ وظیفه جدید پروژه:</span>
+                <input type="text" name="taskTitle" required placeholder="عنوان وظیفه برای «${escapeHtml(p.name)}»..." class="flex-1 min-w-[140px] rounded-lg px-2.5 py-1 font-bold" />
+                <select name="taskAssignee" class="rounded-lg px-2 py-1 font-bold min-w-[105px]">${empSelectOptions}</select>
                 <div class="inline-flex items-center gap-1 bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
                   <span class="text-[10px] muted-text font-bold">مهلت:</span>
                   <input type="text" id="${dlInputId}" name="taskDeadline" value="${escapeHtml(p.deadline || simDate)}" dir="ltr" class="w-20 rounded px-1 py-0.5 font-mono text-center font-bold text-[11px]" />
@@ -5552,7 +5577,7 @@
                   <option value="medium">🟡 متوسط</option>
                   <option value="low">🟢 عادی</option>
                 </select>
-                <button type="submit" class="brand-btn px-3 py-1 rounded-lg font-extrabold">+ ثبت در پروژه</button>
+                <button type="submit" class="brand-btn px-3 py-1 rounded-lg font-extrabold">+ ثبت</button>
               </form>
 
               <!-- Project Tasks Table -->
@@ -5561,7 +5586,7 @@
                   <thead>
                     <tr>
                       <th class="w-16">کد</th>
-                      <th class="min-w-[170px]">عنوان وظیفه</th>
+                      <th class="min-w-[150px]">عنوان وظیفه</th>
                       <th>مسئول</th>
                       <th>اولویت</th>
                       <th>وضعیت</th>
@@ -5603,7 +5628,7 @@
       if (unlinkedTasks.length > 0) {
         const unlinkedGroups = [...new Set(unlinkedTasks.map(t => String(t.project || 'عمومی').trim()))];
         projectsHtml += `
-          <div class="surface-card rounded-2xl p-4 shadow-sm border-r-4 border-r-slate-500 space-y-3">
+          <div class="surface-card rounded-2xl p-3.5 sm:p-4 shadow-sm border-r-4 border-r-slate-500 space-y-3 min-w-0 max-w-full overflow-hidden">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5 border-slate-200 dark:border-slate-700">
               <div>
                 <h4 class="font-extrabold text-sm flex items-center gap-1.5">
@@ -5624,7 +5649,7 @@
                 <thead>
                   <tr>
                     <th class="w-16">کد</th>
-                    <th class="min-w-[170px]">عنوان وظیفه</th>
+                    <th class="min-w-[150px]">عنوان وظیفه</th>
                     <th>مسئول</th>
                     <th>اولویت</th>
                     <th>وضعیت</th>
@@ -6366,7 +6391,7 @@
             if (!pendingCloudPushAfterCurrent) {
               clearLocalStateDirty();
             }
-            if (badge) badge.textContent = 'همگام با سرور ✓';
+            if (badge) badge.textContent = 'همگام ✓';
             if (!silent) showToast('اطلاعات با موفقیت در سرور مرکزی ذخیره و همگام شد.');
             return true;
           } else {
@@ -6466,7 +6491,7 @@
             renderAll();
           }
 
-          if (badge) badge.textContent = 'بروزرسانی سرور ✓';
+          if (badge) badge.textContent = 'همگام ✓';
           if (!silent) showToast('آخرین اطلاعات از سرور مرکزی دریافت و همگام‌سازی شد.');
           return true;
         } else {
@@ -6817,8 +6842,29 @@
 
     function exportScopedJSON(scope) {
       let payload = {};
-      if (scope === 'all') {
-        payload = appState;
+      if (scope === 'all' || !scope) {
+        const fullClone = JSON.parse(JSON.stringify(appState || {}));
+        fullClone.meta = Object.assign({}, fullClone.meta || {}, {
+          exportedAt: getRealTodayJalaliString() + ' ' + new Date().toTimeString().slice(0, 8),
+          exportScope: 'full_enterprise_backup'
+        });
+        fullClone.settings = fullClone.settings || {};
+        try {
+          const savedLogo = localStorage.getItem(LOGO_STORAGE_KEY);
+          if (savedLogo && !fullClone.settings.customLogo) {
+            fullClone.settings.customLogo = savedLogo;
+          }
+        } catch (e) {}
+        fullClone.employees = Array.isArray(fullClone.employees) ? fullClone.employees : [];
+        fullClone.tasks = Array.isArray(fullClone.tasks) ? fullClone.tasks : [];
+        fullClone.inventory = Array.isArray(fullClone.inventory) ? fullClone.inventory : [];
+        fullClone.projects = Array.isArray(fullClone.projects) ? fullClone.projects : [];
+        fullClone.meetings = Array.isArray(fullClone.meetings) ? fullClone.meetings : [];
+        fullClone.users = Array.isArray(fullClone.users) ? fullClone.users : [];
+        fullClone.auditLogs = Array.isArray(fullClone.auditLogs) ? fullClone.auditLogs : [];
+        fullClone.calculatorPresets = Array.isArray(fullClone.calculatorPresets) ? fullClone.calculatorPresets : [];
+        fullClone.deletedIds = fullClone.deletedIds || {};
+        payload = fullClone;
       } else if (scope === 'current-week') {
         const wIdx = getJalaliWeekdayIndex(calendarState.year, calendarState.month, calendarState.day);
         const startAbs = jalaliToAbsoluteDays(calendarState.year, calendarState.month, calendarState.day) - wIdx;
@@ -6829,6 +6875,7 @@
         payload = {
           meta: appState.meta,
           scope: `هفته ${sStr} تا ${eStr}`,
+          projects: appState.projects,
           tasks: appState.tasks.filter(t => compareJalaliStrings(t.deadline, sStr) >= 0 && compareJalaliStrings(t.deadline, eStr) <= 0)
         };
       } else if (scope === 'current-month') {
@@ -6836,15 +6883,16 @@
         payload = {
           meta: appState.meta,
           scope: `ماه ${PERSIAN_MONTHS[calendarState.month - 1]} ${calendarState.year}`,
+          projects: appState.projects,
           tasks: appState.tasks.filter(t => t.deadline.startsWith(prefix))
         };
       } else if (scope === 'tasks-only') {
-        payload = { tasks: appState.tasks };
+        payload = { projects: appState.projects, tasks: appState.tasks };
       } else if (scope === 'inventory-only') {
         payload = { inventory: appState.inventory };
       }
-      downloadBlob(JSON.stringify(payload, null, 2), `Abtano_Backup_${scope}.json`, 'application/json;charset=utf-8;');
-      showToast('فایل Export JSON دانلود شد.');
+      downloadBlob(JSON.stringify(payload, null, 2), `Abtano_Backup_${scope}_${getRealTodayJalaliString().replace(/\//g, '-')}.json`, 'application/json;charset=utf-8;');
+      showToast('فایل پشتیبان کامل (JSON) با تمامی بخش‌ها دانلود شد.');
     }
 
     function importJSONPayload(rawJsonText, mode) {
@@ -6853,9 +6901,12 @@
         pushUndoSnapshot();
         let mergeMsg = 'اطلاعات فایل JSON با موفقیت Import شد!';
         const prevAuditLogs = Array.isArray(appState.auditLogs) ? [...appState.auditLogs] : [];
-        if (mode === 'replace' && (parsed.employees || parsed.tasks || parsed.inventory)) {
+        if (mode === 'replace' && (parsed.employees || parsed.tasks || parsed.inventory || parsed.projects || parsed.meetings || parsed.users)) {
           saveLocalRollingBackup('بکاپ خودکار قبل از جایگزینی JSON');
           appState = normalizeState(parsed);
+          if (parsed.settings && parsed.settings.customLogo) {
+            try { localStorage.setItem(LOGO_STORAGE_KEY, parsed.settings.customLogo); } catch (e) {}
+          }
           // Preserve historical auditLogs even when replacing state
           if (prevAuditLogs.length > 0) {
             smartMergeIntoCurrentState({ auditLogs: prevAuditLogs });
@@ -6940,7 +6991,6 @@
             projCustomInput.classList.add('hidden');
           }
         } else {
-          // Dynamically add option so existing/custom project is selectable cleanly
           const newOpt = document.createElement('option');
           newOpt.value = pName;
           newOpt.textContent = `🚀 ${pName}`;
@@ -7119,25 +7169,46 @@
         }
       } catch (e) {}
       primeEntityDigestCache();
-      const savedCloud = getStoredCloudApiUrl();
       renderAll();
-      if (savedCloud && currentUserSession) {
-        pullStateFromCloudBackend(true);
+
+      async function autoSyncWithCloudOnOpen(silent = true) {
+        const url = getStoredCloudApiUrl();
+        if (!url || !currentUserSession || !currentUserSession.token) return false;
+        if (cloudSyncInProgress) return false;
+        const ok = await pullStateFromCloudBackend(silent);
+        if (!ok && currentUserSession && currentUserSession.token) {
+          // Automatic retry if browser/mobile network was waking up on reopen
+          setTimeout(() => {
+            if (currentUserSession && !cloudSyncInProgress) {
+              pullStateFromCloudBackend(true);
+            }
+          }, 2500);
+        } else if (hasUnsavedCloudChanges && !cloudSyncInProgress) {
+          await pushStateToCloudBackend(true);
+        }
+        return ok;
       }
 
-      // Automatic live date check (ensures if user stays logged in across days, today's date updates automatically)
-      setInterval(() => {
-        if (!appState || !appState.settings) return;
-        const realToday = getRealTodayJalaliString();
-        if (appState.settings.currentSimDate !== realToday) {
-          appState.settings.currentSimDate = realToday;
-          const p = parseJalaliString(realToday);
-          calendarState.year = p.jy;
-          calendarState.month = p.jm;
-          calendarState.day = p.jd;
-          renderAll();
+      if (currentUserSession && currentUserSession.token) {
+        autoSyncWithCloudOnOpen(true);
+      }
+
+      // Automatically sync when reopening browser tab from bfcache, switching back to window, or reconnecting internet
+      window.addEventListener('pageshow', () => {
+        if (currentUserSession && currentUserSession.token && !cloudSyncInProgress) {
+          autoSyncWithCloudOnOpen(true);
         }
-      }, 30000);
+      });
+      window.addEventListener('focus', () => {
+        if (currentUserSession && currentUserSession.token && !cloudSyncInProgress) {
+          autoSyncWithCloudOnOpen(true);
+        }
+      });
+      window.addEventListener('online', () => {
+        if (currentUserSession && currentUserSession.token && !cloudSyncInProgress) {
+          autoSyncWithCloudOnOpen(true);
+        }
+      });
 
       // Protect against accidental tab close or refresh mid-sync
       window.addEventListener('beforeunload', (ev) => {
@@ -7221,6 +7292,20 @@
         saveAppState(false, false);
         renderAll();
       });
+
+      // Automatic live date check (ensures if user stays logged in across days, today's date updates automatically)
+      setInterval(() => {
+        if (!appState || !appState.settings) return;
+        const realToday = getRealTodayJalaliString();
+        if (appState.settings.currentSimDate !== realToday) {
+          appState.settings.currentSimDate = realToday;
+          const p = parseJalaliString(realToday);
+          calendarState.year = p.jy;
+          calendarState.month = p.jm;
+          calendarState.day = p.jd;
+          renderAll();
+        }
+      }, 30000);
 
       // Co-Assignee Select Custom Toggle
       document.getElementById('taskFormCoAssigneeSelect').addEventListener('change', (e) => {
@@ -8313,7 +8398,6 @@
         if (id) {
           const idx = appState.projects.findIndex(x => x.id === id);
           if (idx >= 0) appState.projects[idx] = payload;
-          // Propagate project rename to all tasks & inventory linked to this project
           (appState.tasks || []).forEach(t => {
             if (t.projectId === id || (oldName && String(t.project || '').trim() === oldName)) {
               t.projectId = id;
@@ -8323,7 +8407,6 @@
           });
         } else {
           appState.projects.unshift(payload);
-          // Link any existing tasks with this exact project name
           (appState.tasks || []).forEach(t => {
             if (String(t.project || '').trim() === newName) {
               t.projectId = payload.id;
@@ -9285,7 +9368,7 @@
 
 
 
-      // Cloud Sync Buttons
+      // Cloud Sync Buttons (Two-Way Auto Pull & Push)
       document.getElementById('btnCloudSyncNow').addEventListener('click', async () => {
         const url = getStoredCloudApiUrl();
         if (!url) {
@@ -9298,7 +9381,11 @@
           }
           return;
         }
-        await pushStateToCloudBackend(false);
+        if (hasUnsavedCloudChanges) {
+          await pushStateToCloudBackend(false);
+        } else {
+          await pullStateFromCloudBackend(false);
+        }
       });
 
       document.getElementById('btnSaveCloudUrl').addEventListener('click', () => {
