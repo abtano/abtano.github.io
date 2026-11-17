@@ -708,6 +708,9 @@
               <option value="all">📁 همه پروژه‌ها</option>
             </select>
 
+            <button type="button" id="btnTaskGridSortAdded" class="themed-btn text-xs px-2.5 py-1.5 rounded-lg font-extrabold flex items-center gap-1" title="مرتب‌سازی بر اساس زمان افزودن به سامانه">
+              <span>🕒</span><span>ترتیب ثبت</span><span class="sort-indicator" data-ind="added"></span>
+            </button>
             <button id="btnResetTaskFilters" class="themed-btn text-xs px-2.5 py-1.5 rounded-lg font-semibold">
               پاکسازی فیلتر
             </button>
@@ -890,7 +893,18 @@
       <div id="invSubViewWarehouse" class="space-y-3">
         <div class="surface-card rounded-xl p-3 shadow-sm flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-2">
-            <input type="text" id="inventorySearchInput" placeholder="جستجوی نام استاندارد، کد، وندور، تحویل‌گیرنده، مشخصات..." class="px-3 py-1.5 text-xs rounded-lg w-64" />
+            <div class="flex items-center gap-1">
+              <input type="text" id="inventorySearchInput" placeholder="جستجو (پشتیبانی از * مثل *پان*اس*2*)..." class="px-3 py-1.5 text-xs rounded-lg w-56 sm:w-64 font-semibold" />
+              <select id="filterInventorySearchField" class="text-xs rounded-lg px-2 py-1.5 font-bold" title="فیلتر ستون جستجو">
+                <option value="all">🔍 همه ستون‌ها</option>
+                <option value="name">نام تجهیز</option>
+                <option value="standardCode">کد کالا / استاندارد</option>
+                <option value="specs">مشخصات فنی</option>
+                <option value="buyer">مسئول خرید / شخص</option>
+                <option value="supplier">تامین‌کننده (وندور)</option>
+                <option value="project">پروژه / محل مصرف</option>
+              </select>
+            </div>
             <select id="filterInventoryStatus" class="text-xs rounded-lg px-2.5 py-1.5">
               <option value="all">همه وضعیت‌های انبار و خرید</option>
               <option value="to-buy">🛒 نیازمند خرید فوری</option>
@@ -914,6 +928,9 @@
             </button>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">
+            <button type="button" id="btnInvSortAdded" class="themed-btn px-2.5 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1" title="مرتب‌سازی بر اساس ترتیب ثبت در انبار">
+              <span>🕒</span><span>ترتیب ثبت</span><span class="inv-sort-ind" data-ind="added"></span>
+            </button>
             <button id="btnAddNewInventoryItem" class="brand-btn px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
               <span>➕</span><span>ثبت تجهیز / خرید جدید</span>
             </button>
@@ -934,19 +951,15 @@
                   <th class="w-9 text-center">
                     <input type="checkbox" id="chkSelectAllInv" class="w-4 h-4 cursor-pointer accent-emerald-600" />
                   </th>
-                  <th data-inv-sort="id" class="sortable-th">کد کالا <span class="inv-sort-ind" data-ind="id"></span></th>
-                  <th data-inv-sort="name" class="sortable-th min-w-[210px]">نام استاندارد تجهیز و مشخصات فنی <span class="inv-sort-ind" data-ind="name"></span></th>
-                  <th data-inv-sort="category" class="sortable-th">دسته‌بندی <span class="inv-sort-ind" data-ind="category"></span></th>
-                  <th class="min-w-[165px]">ردیابی موجودی (خرید / مصرف / مانده)</th>
-                  <th data-inv-sort="unitPrice" class="sortable-th">قیمت واحد (تومان / $) <span class="inv-sort-ind" data-ind="unitPrice"></span></th>
-                  <th data-inv-sort="totalPrice" class="sortable-th">مبلغ کل خرید (تومان / $) <span class="inv-sort-ind" data-ind="totalPrice"></span></th>
-                  <th class="min-w-[170px]">الان دست کیه؟ / محل مصرف</th>
-                  <th>وندور (تامین‌کننده)</th>
-                  <th data-inv-sort="buyDate" class="sortable-th">تاریخ خرید <span class="inv-sort-ind" data-ind="buyDate">▲</span></th>
-                  <th data-inv-sort="buyer" class="sortable-th">مسئول خرید <span class="inv-sort-ind" data-ind="buyer"></span></th>
-                  <th data-inv-sort="status" class="sortable-th">وضعیت و BOM <span class="inv-sort-ind" data-ind="status"></span></th>
-                  <th class="min-w-[190px]">توضیحات فنی</th>
-                  <th class="text-center">عملیات</th>
+                  <th data-inv-sort="id" class="sortable-th w-28">کد کالا <span class="inv-sort-ind" data-ind="id"></span></th>
+                  <th data-inv-sort="name" class="sortable-th min-w-[185px]">نام استاندارد تجهیز <span class="inv-sort-ind" data-ind="name"></span></th>
+                  <th data-inv-sort="specs" class="sortable-th min-w-[210px]">مشخصات فنی و سایز <span class="inv-sort-ind" data-ind="specs"></span></th>
+                  <th data-inv-sort="category" class="sortable-th min-w-[130px]">دسته‌بندی و مالکیت <span class="inv-sort-ind" data-ind="category"></span></th>
+                  <th data-inv-sort="qtyRemaining" class="sortable-th min-w-[175px]">موجودی انبار (کل / مصرف / مانده) <span class="inv-sort-ind" data-ind="qtyRemaining"></span></th>
+                  <th data-inv-sort="unitPrice" class="sortable-th min-w-[155px]">قیمت واحد (خرید / نرخ روز) <span class="inv-sort-ind" data-ind="unitPrice"></span></th>
+                  <th data-inv-sort="totalPrice" class="sortable-th min-w-[160px]">مبلغ کل (خرید / نرخ روز) <span class="inv-sort-ind" data-ind="totalPrice"></span></th>
+                  <th data-inv-sort="status" class="sortable-th min-w-[135px]">وضعیت و BOM <span class="inv-sort-ind" data-ind="status"></span></th>
+                  <th class="text-center w-28">عملیات</th>
                 </tr>
               </thead>
               <tbody id="inventoryTableBody"></tbody>
@@ -1343,11 +1356,16 @@
             <option value="low">🟢 عادی</option>
           </select>
           <button type="submit" class="brand-btn px-3 py-1 rounded-lg font-extrabold">+ ثبت</button>
-          <select id="portalFilterTaskStatus" class="rounded-lg px-2 py-1 font-bold mr-auto">
-            <option value="all">همه وظایف من</option>
-            <option value="open">⏳ کارهای باز</option>
-            <option value="completed">✅ تکمیل شده</option>
-          </select>
+          <div class="flex items-center gap-1 mr-auto">
+            <button type="button" id="btnPortalTasksSortAdded" class="themed-btn px-2 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1" title="مرتب‌سازی بر اساس ترتیب ثبت">
+              <span>🕒</span><span>ترتیب ثبت</span><span class="ptask-sort-ind" data-ind="added">▼</span>
+            </button>
+            <select id="portalFilterTaskStatus" class="rounded-lg px-2 py-1 font-bold">
+              <option value="all">همه وظایف من</option>
+              <option value="open">⏳ کارهای باز</option>
+              <option value="completed">✅ تکمیل شده</option>
+            </select>
+          </div>
         </form>
 
         <!-- Refined Detailed Table for Employee Tasks (With Renamed Columns & Sortable Headers) -->
@@ -1823,7 +1841,18 @@
           </div>
           <div class="sm:col-span-3">
             <label class="block font-bold mb-1">دسته‌بندی</label>
-            <input type="text" id="invFormCategory" class="w-full rounded-lg px-2.5 py-1.5" value="اتصالات و لوله‌کشی" placeholder="شیرآلات، اتصالات، برق..." />
+            <input type="text" id="invFormCategory" list="invCategoryOptionsList" class="w-full rounded-lg px-2.5 py-1.5" value="اتصالات و لوله‌کشی" placeholder="شیرآلات، اتصالات، هزینه‌های جانبی..." />
+            <datalist id="invCategoryOptionsList">
+              <option value="اتصالات و لوله‌کشی"></option>
+              <option value="شیرآلات و کنترل جریان"></option>
+              <option value="پمپ، دوزینگ و تزریق"></option>
+              <option value="مخازن، فیلترها و رزین"></option>
+              <option value="برق، تابلو و ابزار دقیق"></option>
+              <option value="شاسی، سازه و پوشش"></option>
+              <option value="ابزارآلات کارگاهی"></option>
+              <option value="برندینگ و پلاک"></option>
+              <option value="هزینه‌های جانبی پروژه (حمل، اسکان، غذا و خدمات)"></option>
+            </datalist>
           </div>
           <div class="sm:col-span-3">
             <label class="block font-bold mb-1">نوع مالکیت / تامین</label>
@@ -2329,6 +2358,10 @@
               <span>📋 جدول کل وظایف شرکت</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer font-bold">
+              <input type="checkbox" id="permEmployees" class="w-4 h-4 accent-emerald-600" />
+              <span>👥 کارنمای اعضای تیم</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-bold">
               <input type="checkbox" id="permSettings" checked class="w-4 h-4 accent-emerald-600" />
               <span>⚙️ تنظیمات ظاهر (تم روشن/تیره)</span>
             </label>
@@ -2509,6 +2542,142 @@
           <button type="button" id="btnTdvEditTask" class="themed-btn px-3 py-2 rounded-xl font-bold text-xs" title="ویرایش وظیفه">✏️</button>
         </div>
         <button type="button" id="btnDoneTaskDetailView" class="themed-btn px-4 py-2 rounded-xl font-bold text-xs">بستن</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL 15: INVENTORY ITEM CARDEX, TRANSACTION LEDGER & FULL DETAILS (کاردکس و شناسنامه کالا)
+       ========================================== -->
+  <div id="modalInventoryHistory" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden items-center justify-center p-3">
+    <div class="surface-card rounded-2xl max-w-3xl w-full p-5 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-xs">
+      <div class="flex items-start justify-between gap-2 border-b pb-3 border-slate-200 dark:border-slate-700">
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span id="invHistCodeBadge" class="font-mono text-[11px] px-2 py-0.5 rounded subtle-bg border border-slate-300 dark:border-slate-600 font-extrabold">INV</span>
+            <span id="invHistCategoryBadge" class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]"></span>
+            <span id="invHistOwnershipBadge" class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-700 dark:text-sky-300 font-bold text-[10px]"></span>
+          </div>
+          <h3 id="invHistTitle" class="font-black text-base md:text-lg">نام استاندارد تجهیز</h3>
+          <div id="invHistEnglishName" class="font-mono text-[11px] text-sky-600 dark:text-sky-400 font-semibold" dir="ltr"></div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" id="btnInvHistEditItem" class="themed-btn px-2.5 py-1.5 rounded-lg font-bold text-xs" title="ویرایش مشخصات پایه کالا">✏️ ویرایش کالا</button>
+          <button type="button" id="btnCloseInventoryHistoryModal" class="muted-text hover:text-rose-500 text-lg font-bold px-1">✕</button>
+        </div>
+      </div>
+
+      <!-- Full Item Metadata & Financial Summary Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 subtle-bg p-3.5 rounded-xl border border-slate-200 dark:border-slate-700">
+        <div>
+          <span class="block text-[10px] muted-text font-bold">🏢 تامین‌کننده (وندور):</span>
+          <strong id="invHistSupplier" class="font-extrabold text-xs">-</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] muted-text font-bold">👤 مسئول خرید اولیه:</span>
+          <strong id="invHistBuyer" class="font-extrabold text-xs">-</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] muted-text font-bold">📅 تاریخ خرید اولیه:</span>
+          <strong id="invHistBuyDate" class="font-extrabold text-xs">-</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] muted-text font-bold">📍 محل نگهداری / تحویل‌گیرنده:</span>
+          <strong id="invHistHolder" class="font-extrabold text-xs text-amber-600 dark:text-amber-400">-</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] muted-text font-bold">🎯 پروژه / محل مصرف:</span>
+          <strong id="invHistProject" class="font-extrabold text-xs">-</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] muted-text font-bold">📊 موجودی فعلی انبار:</span>
+          <strong id="invHistStockSummary" class="font-extrabold text-xs text-emerald-600 dark:text-emerald-400">-</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] muted-text font-bold">💵 قیمت واحد (خرید / نرخ روز):</span>
+          <strong id="invHistUnitPrices" class="font-mono font-extrabold text-xs">-</strong>
+        </div>
+        <div>
+          <span class="block text-[10px] muted-text font-bold">💰 مبلغ کل (خرید / نرخ روز):</span>
+          <strong id="invHistTotalPrices" class="font-mono font-extrabold text-xs">-</strong>
+        </div>
+        <div class="col-span-2 sm:col-span-4 pt-1.5 border-t border-slate-200 dark:border-slate-700">
+          <span class="text-[10px] muted-text font-bold">⚙️ مشخصات فنی و توضیحات: </span>
+          <span id="invHistSpecsAndNotes" class="text-xs font-medium">-</span>
+        </div>
+      </div>
+
+      <!-- Add Stock Transaction Form (ورود / خروج کالا) -->
+      <form id="formInvTransaction" class="p-3.5 rounded-xl subtle-bg border border-emerald-500/30 space-y-2.5">
+        <input type="hidden" id="invTxItemId" />
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-emerald-700 dark:text-emerald-300">➕ ثبت تردد جدید در کاردکس انبار (خرید / ورود به انبار یا برداشت / مصرف در پروژه)</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          <div class="sm:col-span-4">
+            <label class="block font-bold mb-1 text-[11px]">نوع عملیات انبار *</label>
+            <select id="invTxType" class="w-full rounded-lg px-2.5 py-1.5 font-extrabold">
+              <option value="out">🔴 برداشت از انبار / مصرف (- کاهش مانده)</option>
+              <option value="in">🟢 خرید جدید / ورود به انبار (+ افزایش موجودی)</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block font-bold mb-1 text-[11px]">مقدار / تعداد *</label>
+            <input type="number" id="invTxQty" value="1" min="0.1" step="0.5" required dir="ltr" class="w-full rounded-lg px-2 py-1.5 font-mono text-center font-extrabold" />
+          </div>
+          <div class="sm:col-span-3">
+            <label class="block font-bold mb-1 text-[11px]">شخص (خریدار / تحویل‌گیرنده) *</label>
+            <input type="text" id="invTxPerson" list="invTxPersonList" required class="w-full rounded-lg px-2.5 py-1.5 font-bold" placeholder="مثلاً: محمدحسین احمدی نژاد" />
+            <datalist id="invTxPersonList"></datalist>
+          </div>
+          <div class="sm:col-span-3">
+            <label class="block font-bold mb-1 text-[11px]">تاریخ شمسی *</label>
+            <div class="flex items-center gap-1">
+              <input type="text" id="invTxDate" required dir="ltr" class="w-full rounded-lg px-2 py-1.5 font-mono text-center font-bold" />
+              <button type="button" data-action="open-jalali-picker" data-target-input="invTxDate" class="themed-btn px-1.5 py-1.5 rounded-lg text-xs shrink-0" title="انتخاب از تقویم شمسی">🗓️</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+          <div class="sm:col-span-5">
+            <label class="block font-bold mb-1 text-[11px]">پروژه مرتبط / محل مصرف یا تامین‌کننده</label>
+            <input type="text" id="invTxProjectOrVendor" class="w-full rounded-lg px-2.5 py-1.5" placeholder="مثلاً: پروژه حذف آهن شرکت گاز-1" />
+          </div>
+          <div class="sm:col-span-4">
+            <label class="block font-bold mb-1 text-[11px]">توضیحات تکمیلی تردد</label>
+            <input type="text" id="invTxNote" class="w-full rounded-lg px-2.5 py-1.5" placeholder="توضیحات..." />
+          </div>
+          <div class="sm:col-span-3 flex justify-end">
+            <button type="submit" class="brand-btn w-full py-1.5 px-3 rounded-lg font-extrabold">✅ ثبت در کاردکس کالا</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Cardex Ledger Table -->
+      <div class="space-y-1.5">
+        <div class="font-extrabold text-xs flex items-center justify-between">
+          <span>📜 تاریخچه ورود و خروج کالا در انبار (کاردکس تعدادی):</span>
+          <span id="invHistTxCountBadge" class="text-[11px] muted-text font-bold"></span>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 max-h-[260px]">
+          <table class="excel-table">
+            <thead>
+              <tr>
+                <th class="w-28">تاریخ شمسی</th>
+                <th class="w-36">نوع و مقدار تردد</th>
+                <th class="w-40">شخص (خریدار / تحویل‌گیرنده)</th>
+                <th>پروژه / محل مصرف / وندور و توضیحات</th>
+                <th class="w-20 text-center">عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="invHistTransactionsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-2 border-t border-slate-200 dark:border-slate-700">
+        <button type="button" id="btnDoneInventoryHistoryModal" class="themed-btn px-4 py-1.5 rounded-lg text-xs font-bold">بستن</button>
       </div>
     </div>
   </div>
@@ -2744,11 +2913,53 @@
       return (startAbs * 100000) + seqNum;
     }
 
+    let empPageTaskFilter = 'open';
+    let empPageTaskSort = 'deadline';
+    let currentInvHistoryItemId = '';
+
+    function normalizeSearchString(str) {
+      if (!str) return '';
+      return toEnglishDigits(String(str))
+        .replace(/ي/g, 'ی')
+        .replace(/ك/g, 'ک')
+        .replace(/×/g, 'x')
+        .replace(/‌/g, ' ')
+        .toLowerCase()
+        .trim();
+    }
+
+    function matchesWildcardQuery(haystackRaw, queryRaw) {
+      if (!queryRaw) return true;
+      const hay = normalizeSearchString(haystackRaw);
+      const q = normalizeSearchString(queryRaw);
+      if (!q) return true;
+      if (q.includes('*')) {
+        const parts = q.split('*').map(s => s.trim()).filter(Boolean);
+        return parts.every(part => hay.includes(part));
+      }
+      return hay.includes(q);
+    }
+
+    function getInvAddedOrderValue(item) {
+      if (!item) return 0;
+      if (item._createdClientTs && Number(item._createdClientTs) > 0) return Number(item._createdClientTs);
+      const m = String(item.id || '').match(/(\d+)/);
+      const seqNum = m ? parseInt(m[1], 10) : 0;
+      const buyParts = parseJalaliString(item.buyDate || '1405/08/01');
+      const buyAbs = jalaliToAbsoluteDays(buyParts.jy, buyParts.jm, buyParts.jd);
+      return (buyAbs * 100000) + seqNum;
+    }
+
     function sortEmployeeTasksList(list, sortState) {
       const prioRank = { critical: 4, high: 3, medium: 2, low: 1 };
       const statusRank = { delayed: 4, 'in-progress': 3, pending: 2, completed: 1 };
       const mult = sortState.dir === 'asc' ? 1 : -1;
       return [...list].sort((a, b) => {
+        if (sortState.col === 'deadline' || sortState.col === 'priority') {
+          const aDone = getEffectiveTaskStatus(a) === 'completed' ? 1 : 0;
+          const bDone = getEffectiveTaskStatus(b) === 'completed' ? 1 : 0;
+          if (aDone !== bDone) return aDone - bDone;
+        }
         let cmp = 0;
         if (sortState.col === 'added') {
           cmp = getTaskAddedOrderValue(a) - getTaskAddedOrderValue(b);
@@ -2758,6 +2969,7 @@
           cmp = getTaskTotalMinutes(a) - getTaskTotalMinutes(b);
         } else if (sortState.col === 'deadline') {
           cmp = compareJalaliStrings(a.deadline, b.deadline);
+          if (cmp === 0) cmp = (prioRank[b.priority] || 0) - (prioRank[a.priority] || 0);
         } else if (sortState.col === 'status') {
           cmp = (statusRank[getEffectiveTaskStatus(a)] || 0) - (statusRank[getEffectiveTaskStatus(b)] || 0);
         } else if (sortState.col === 'project') {
@@ -3439,7 +3651,49 @@
       if (!item.quantity) {
         item.quantity = `${item.qtyPurchased} ${item.unit}`;
       }
+      if (!Array.isArray(item.transactions) || item.transactions.length === 0) {
+        item.transactions = [];
+        if (item.qtyPurchased > 0 && item.status !== 'to-buy') {
+          item.transactions.push({
+            id: `tx_init_in_${item.id}`,
+            date: item.buyDate || '1405/08/06',
+            time: '09:00',
+            type: 'in',
+            qty: item.qtyPurchased,
+            person: item.buyer || 'تدارکات آبتانو',
+            projectOrVendor: item.supplier ? `تامین از: ${item.supplier}` : (item.ownership || 'خرید شرکت'),
+            note: 'ثبت اولیه ورود کالا به انبار'
+          });
+        }
+        if (item.qtyUsed > 0 && item.status !== 'to-buy') {
+          item.transactions.push({
+            id: `tx_init_out_${item.id}`,
+            date: item.buyDate || '1405/08/08',
+            time: '14:00',
+            type: 'out',
+            qty: item.qtyUsed,
+            person: item.buyer || 'تیم فنی',
+            projectOrVendor: item.usedFor || item.project || 'پروژه حذف آهن شرکت گاز-1',
+            note: `برداشت و مصرف در پروژه (${item.holder || 'نصب روی دستگاه'})`
+          });
+        }
+      }
       return item;
+    }
+
+    function mergeInventoryTransactionsClient(curTx, incTx, delLogsMap) {
+      const delMap = delLogsMap || {};
+      const combined = [];
+      const seen = new Set();
+      [...(Array.isArray(incTx) ? incTx : []), ...(Array.isArray(curTx) ? curTx : [])].forEach(tx => {
+        if (!tx || typeof tx !== 'object') return;
+        const k = tx.id ? `id:${tx.id}` : `sig:${tx.date || ''}|${tx.time || ''}|${tx.type || ''}|${tx.qty || ''}|${tx.person || ''}|${tx.note || ''}`;
+        if (delMap[k] || (tx.id && delMap[tx.id])) return;
+        if (seen.has(k)) return;
+        seen.add(k);
+        combined.push(tx);
+      });
+      return combined;
     }
 
     function normalizeState(s) {
@@ -3699,8 +3953,11 @@
           );
           if (idx >= 0) {
             const curI = appState.inventory[idx];
+            const mergedTx = mergeInventoryTransactionsClient(curI.transactions, normInc.transactions, delLogs);
             if ((Number(normInc._updatedAt) || 0) >= (Number(curI._updatedAt) || 0)) {
-              appState.inventory[idx] = normalizeInventoryItem(Object.assign({}, curI, normInc, { id: curI.id }), appState.settings.usdExchangeRate);
+              appState.inventory[idx] = normalizeInventoryItem(Object.assign({}, curI, normInc, { id: curI.id, transactions: mergedTx }), appState.settings.usdExchangeRate);
+            } else {
+              curI.transactions = mergedTx;
             }
             statInv++;
           } else {
@@ -4042,6 +4299,7 @@
           emp.history.unshift({
             date: simDate,
             time: nowTime,
+            taskId: task.id,
             text: completionMsg
           });
         }
@@ -4470,8 +4728,8 @@
         if (prio !== 'all' && t.priority !== prio) return false;
         if (proj !== 'all' && t.project !== proj) return false;
         if (q) {
-          const hay = `${t.id} ${t.title} ${t.description} ${t.lastNote} ${emp.name} ${t.coAssignee} ${t.project}`.toLowerCase();
-          if (!hay.includes(q)) return false;
+          const hay = `${t.id} ${t.title} ${t.description} ${t.lastNote} ${emp.name} ${t.coAssignee} ${t.project}`;
+          if (!matchesWildcardQuery(hay, q)) return false;
         }
         return true;
       });
@@ -4481,9 +4739,17 @@
       const mult = taskSort.dir === 'asc' ? 1 : -1;
 
       return filtered.sort((a, b) => {
+        if (taskSort.col === 'deadline' || taskSort.col === 'priority') {
+          const aDone = getEffectiveTaskStatus(a) === 'completed' ? 1 : 0;
+          const bDone = getEffectiveTaskStatus(b) === 'completed' ? 1 : 0;
+          if (aDone !== bDone) return aDone - bDone;
+        }
         let cmp = 0;
-        if (taskSort.col === 'deadline') {
+        if (taskSort.col === 'added') {
+          cmp = getTaskAddedOrderValue(a) - getTaskAddedOrderValue(b);
+        } else if (taskSort.col === 'deadline') {
           cmp = compareJalaliStrings(a.deadline, b.deadline);
+          if (cmp === 0) cmp = (prioRank[b.priority] || 0) - (prioRank[a.priority] || 0);
         } else if (taskSort.col === 'title') {
           cmp = (a.title || '').localeCompare(b.title || '', 'fa');
         } else if (taskSort.col === 'assignee') {
@@ -4500,6 +4766,9 @@
           cmp = getTaskTotalMinutes(a) - getTaskTotalMinutes(b);
         } else {
           cmp = (a.id || '').localeCompare(b.id || '', 'fa');
+        }
+        if (cmp === 0) {
+          cmp = getTaskAddedOrderValue(b) - getTaskAddedOrderValue(a);
         }
         return cmp * mult;
       });
@@ -4908,69 +5177,102 @@
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <div class="lg:col-span-7 space-y-2.5">
-              <div class="flex items-center justify-between">
-                <h4 class="font-extrabold text-sm">📋 لیست کامل وظایف ${emp.name} (${toPersianDigits(empTasks.length)})</h4>
-                <button data-action="new-task-for-emp" data-emp-id="${emp.id}" class="text-xs font-bold hover:underline" style="color:var(--brand-primary)">+ تعریف وظیفه جدید برای ${emp.name}</button>
-              </div>
-              <div class="space-y-2">
-                ${empTasks.length === 0 ? `<div class="p-4 rounded-xl border border-dashed text-xs muted-text">وظیفه‌ای برای این عضو ثبت نشده است.</div>` :
-                  empTasks.map(t => `
-                    <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 subtle-bg flex flex-wrap items-center justify-between gap-2">
-                      <div class="space-y-1 flex-1 min-w-[220px]">
-                        <div class="flex items-center gap-2">
-                          <span class="font-mono text-[10px] font-bold muted-text">${t.id}</span>
-                          <span class="font-extrabold text-xs ${t.status === 'completed' ? 'line-through opacity-75' : ''}">${t.title}</span>
-                          ${t.status === 'completed' ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-500 px-1.5 py-0.2 rounded font-bold">✓ تکمیل شده</span>' : ''}
-                        </div>
-                        <p class="text-[11px] muted-text">${t.lastNote || t.description || ''}</p>
-                        <div class="flex flex-wrap items-center gap-3 text-[10px] font-bold text-emerald-500">
-                          <span>ددلاین: ${formatJalaliHuman(t.deadline)} (${toPersianDigits(t.progress)}٪ پیشرفت)</span>
-                          <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 font-mono">⏱️ کارکرد: ${formatMinutesToHHMM(getTaskTotalMinutes(t))}</span>
-                        </div>
-                      </div>
-                      <div class="flex flex-wrap items-center gap-1">
-                        <div class="flex items-center gap-1 px-1.5 py-0.5 rounded subtle-bg border border-slate-300 dark:border-slate-600" title="ثبت مستقیم ساعت:دقیقه کارکرد روی این وظیفه">
-                          <span class="text-[10px]">⏱️</span>
-                          <input type="text" data-action="inline-worked-time" data-task-id="${t.id}" value="${formatMinutesToHHMM(getTaskTotalMinutes(t), false)}" dir="ltr" placeholder="00:00" class="w-14 text-center font-mono text-[11px] font-extrabold rounded px-1 py-0.5" />
-                        </div>
-                        <div data-action="drag-task-progress" data-task-id="${t.id}" class="flex items-center gap-1 cursor-ew-resize select-none px-1.5 py-1 rounded subtle-bg border border-slate-300 dark:border-slate-600" title="کشیدن برای تغییر درصد پیشرفت">
-                          <div class="w-12 h-2 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden pointer-events-none">
-                            <div class="js-prog-fill h-full ${t.status === 'completed' ? 'bg-emerald-500' : 'bg-sky-500'}" style="width:${t.progress}%"></div>
-                          </div>
-                          <span class="js-prog-label text-[10px] font-bold pointer-events-none">${toPersianDigits(t.progress)}٪</span>
-                        </div>
-                        <button data-action="open-task-logs" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="سوابق گزارش">📚 (${toPersianDigits((t.logs || []).length)})</button>
-                        ${t.status !== 'completed' ? `<button data-action="complete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه">تکمیل</button>` : `<button data-action="uncomplete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`}
-                        <button data-action="shift-deadline" data-task-id="${t.id}" data-days="1" class="themed-btn px-2 py-1 rounded text-[10px] font-bold">+۱ روز</button>
-                        ${canCurrentUserEditTasks() ? `<button data-action="edit-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs" title="ویرایش وظیفه">✏️</button>` : ''}
-                        ${canCurrentUserDelete() ? `<button data-action="delete-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف وظیفه">🗑️</button>` : ""}
-                      </div>
+              ${(() => {
+                const openEmpTasks = empTasks.filter(t => getEffectiveTaskStatus(t) !== 'completed');
+                const doneEmpTasks = empTasks.filter(t => getEffectiveTaskStatus(t) === 'completed');
+                const baseList = empPageTaskFilter === 'all' ? empTasks : openEmpTasks;
+                const sortDir = empPageTaskSort === 'added' ? 'desc' : (empPageTaskSort === 'priority' ? 'desc' : 'asc');
+                const visibleEmpTasks = sortEmployeeTasksList(baseList, { col: empPageTaskSort, dir: sortDir });
+                return `
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-extrabold text-sm">📋 وظایف باز ${emp.name} (${toPersianDigits(openEmpTasks.length)})</h4>
+                      ${doneEmpTasks.length > 0 ? `
+                        <button type="button" data-action="toggle-emp-page-completed" class="themed-btn px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                          ${empPageTaskFilter === 'all' ? `پنهان کردن تکمیل‌شده‌ها (${toPersianDigits(doneEmpTasks.length)})` : `نمایش تکمیل‌شده‌ها (${toPersianDigits(doneEmpTasks.length)})`}
+                        </button>
+                      ` : ''}
                     </div>
-                  `).join('')}
-              </div>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <select data-action="emp-page-sort-tasks" class="text-[11px] rounded-lg px-2 py-1 font-bold">
+                        <option value="deadline" ${empPageTaskSort === 'deadline' ? 'selected' : ''}>مرتب‌سازی: ددلاین نزدیک</option>
+                        <option value="added" ${empPageTaskSort === 'added' ? 'selected' : ''}>مرتب‌سازی: ترتیب ثبت</option>
+                        <option value="priority" ${empPageTaskSort === 'priority' ? 'selected' : ''}>مرتب‌سازی: اولویت</option>
+                      </select>
+                      <button data-action="new-task-for-emp" data-emp-id="${emp.id}" class="text-xs font-bold hover:underline" style="color:var(--brand-primary)">+ تعریف وظیفه جدید</button>
+                    </div>
+                  </div>
+                  <div class="space-y-2">
+                    ${visibleEmpTasks.length === 0 ? `<div class="p-4 rounded-xl border border-dashed text-xs muted-text">وظیفه بازی برای ${emp.name} وجود ندارد (کارهای تکمیل‌شده به تایم‌لاین سمت چپ منتقل شده‌اند).</div>` :
+                      visibleEmpTasks.map(t => `
+                        <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 subtle-bg flex flex-wrap items-center justify-between gap-2">
+                          <div class="space-y-1 flex-1 min-w-[220px]">
+                            <div class="flex items-center gap-2">
+                              <span class="font-mono text-[10px] font-bold muted-text">${t.id}</span>
+                              <span data-action="view-task-detail" data-task-id="${t.id}" class="cursor-pointer hover:text-emerald-600 font-extrabold text-xs ${t.status === 'completed' ? 'line-through opacity-75' : ''}">${t.title}</span>
+                              ${t.status === 'completed' ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-500 px-1.5 py-0.2 rounded font-bold">✓ تکمیل شده</span>' : ''}
+                            </div>
+                            <p class="text-[11px] muted-text">${t.lastNote || t.description || ''}</p>
+                            <div class="flex flex-wrap items-center gap-3 text-[10px] font-bold text-emerald-500">
+                              <span>ددلاین: ${formatJalaliHuman(t.deadline)} (${toPersianDigits(t.progress)}٪ پیشرفت)</span>
+                              <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 font-mono">⏱️ کارکرد: ${formatMinutesToHHMM(getTaskTotalMinutes(t))}</span>
+                            </div>
+                          </div>
+                          <div class="flex flex-wrap items-center gap-1">
+                            <div class="flex items-center gap-1 px-1.5 py-0.5 rounded subtle-bg border border-slate-300 dark:border-slate-600" title="ثبت مستقیم ساعت:دقیقه کارکرد روی این وظیفه">
+                              <span class="text-[10px]">⏱️</span>
+                              <input type="text" data-action="inline-worked-time" data-task-id="${t.id}" value="${formatMinutesToHHMM(getTaskTotalMinutes(t), false)}" dir="ltr" placeholder="00:00" class="w-14 text-center font-mono text-[11px] font-extrabold rounded px-1 py-0.5" />
+                            </div>
+                            <div data-action="drag-task-progress" data-task-id="${t.id}" class="flex items-center gap-1 cursor-ew-resize select-none px-1.5 py-1 rounded subtle-bg border border-slate-300 dark:border-slate-600" title="کشیدن برای تغییر درصد پیشرفت">
+                              <div class="w-12 h-2 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden pointer-events-none">
+                                <div class="js-prog-fill h-full ${t.status === 'completed' ? 'bg-emerald-500' : 'bg-sky-500'}" style="width:${t.progress}%"></div>
+                              </div>
+                              <span class="js-prog-label text-[10px] font-bold pointer-events-none">${toPersianDigits(t.progress)}٪</span>
+                            </div>
+                            <button data-action="open-task-logs" data-task-id="${t.id}" class="themed-btn px-2 py-1 rounded text-[10px] font-bold text-emerald-600 dark:text-emerald-400" title="سوابق گزارش">📚 (${toPersianDigits((t.logs || []).length)})</button>
+                            ${t.status !== 'completed' ? `<button data-action="complete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold" title="تکمیل وظیفه و انتقال به تایم‌لاین">تکمیل</button>` : `<button data-action="uncomplete-task" data-task-id="${t.id}" class="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل و بازگشت به وضعیت قبلی">↩️ لغو تکمیل</button>`}
+                            <button data-action="shift-deadline" data-task-id="${t.id}" data-days="1" class="themed-btn px-2 py-1 rounded text-[10px] font-bold">+۱ روز</button>
+                            ${canCurrentUserEditTasks() ? `<button data-action="edit-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs" title="ویرایش وظیفه">✏️</button>` : ''}
+                            ${canCurrentUserDelete() ? `<button data-action="delete-task" data-task-id="${t.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف وظیفه">🗑️</button>` : ""}
+                          </div>
+                        </div>
+                      `).join('')}
+                  </div>
+                `;
+              })()}
             </div>
 
             <div class="lg:col-span-5 space-y-2.5">
               <h4 class="font-extrabold text-sm">⏳ تایم‌لاین و تاریخچه کامل گزارش‌ها و کارهای انجام‌شده</h4>
-              <div class="relative border-r-2 border-emerald-600 pr-4 space-y-3 max-h-[450px] overflow-y-auto">
+              <div class="relative border-r-2 border-emerald-600 pr-4 space-y-3 max-h-[480px] overflow-y-auto">
                 ${(emp.history || []).length === 0 ? `<div class="text-xs muted-text">هنوز سابقه‌ای در تایم‌لاین ثبت نشده است.</div>` :
-                  (emp.history || []).map((h, hIdx) => `
-                  <div class="p-2.5 rounded-xl surface-card relative group">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 absolute -right-[21px] top-3.5"></span>
-                    <div class="flex items-center justify-between gap-2 text-[10px] muted-text font-bold mb-1">
-                      <div class="flex flex-wrap items-center gap-2">
-                        <span>📅 ${formatJalaliHuman(h.date)}</span>
-                        <span>ساعت ${toPersianDigits(h.time || '12:00')}</span>
-                        ${h.workedMinutes ? `<span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-mono">⏱️ کارکرد: ${formatMinutesToHHMM(h.workedMinutes)}</span>` : ''}
+                  (emp.history || []).map((h, hIdx) => {
+                    let completedTaskMatch = null;
+                    if (h.taskId) {
+                      completedTaskMatch = empTasks.find(t => t.id === h.taskId && t.status === 'completed');
+                    }
+                    if (!completedTaskMatch && h.text && h.text.includes('تکمیل وظیفه:')) {
+                      completedTaskMatch = empTasks.find(t => t.status === 'completed' && h.text.includes(`«${t.title}»`));
+                    }
+                    return `
+                      <div class="p-2.5 rounded-xl surface-card relative group">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 absolute -right-[21px] top-3.5"></span>
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] muted-text font-bold mb-1">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <span>📅 ${formatJalaliHuman(h.date)}</span>
+                            <span>ساعت ${toPersianDigits(h.time || '12:00')}</span>
+                            ${h.workedMinutes ? `<span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-mono">⏱️ کارکرد: ${formatMinutesToHHMM(h.workedMinutes)}</span>` : ''}
+                          </div>
+                          <div class="inline-flex items-center gap-1">
+                            ${completedTaskMatch ? `<button type="button" data-action="uncomplete-task" data-task-id="${completedTaskMatch.id}" class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/35 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[10px] font-extrabold" title="لغو تکمیل و بازگرداندن وظیفه به لیست کارهای باز">↩️ لغو تکمیل</button>` : ''}
+                            ${canCurrentUserEditTasks() ? `<button data-action="edit-emp-history" data-emp-id="${emp.id}" data-hist-idx="${hIdx}" class="themed-btn px-1.5 py-0.5 rounded text-[10px] font-bold hover:text-sky-500" title="ویرایش گزارش">✏️</button>` : ''}
+                            ${canCurrentUserDelete() ? `<button data-action="delete-emp-history" data-emp-id="${emp.id}" data-hist-idx="${hIdx}" class="themed-btn px-1.5 py-0.5 rounded text-[10px] font-bold hover:text-rose-500" title="حذف گزارش">🗑️</button>` : ""}
+                          </div>
+                        </div>
+                        <p class="text-xs leading-relaxed whitespace-pre-line">${h.text}</p>
                       </div>
-                      <div class="inline-flex items-center gap-1">
-                        ${canCurrentUserEditTasks() ? `<button data-action="edit-emp-history" data-emp-id="${emp.id}" data-hist-idx="${hIdx}" class="themed-btn px-1.5 py-0.5 rounded text-[10px] font-bold hover:text-sky-500" title="ویرایش گزارش">✏️</button>` : ''}
-                        ${canCurrentUserDelete() ? `<button data-action="delete-emp-history" data-emp-id="${emp.id}" data-hist-idx="${hIdx}" class="themed-btn px-1.5 py-0.5 rounded text-[10px] font-bold hover:text-rose-500" title="حذف گزارش">🗑️</button>` : ""}
-                      </div>
-                    </div>
-                    <p class="text-xs leading-relaxed whitespace-pre-line">${h.text}</p>
-                  </div>
-                `).join('')}
+                    `;
+                  }).join('')}
               </div>
             </div>
           </div>
@@ -5031,7 +5333,16 @@
         }
       });
 
-      const q = (document.getElementById('inventorySearchInput')?.value || '').trim().toLowerCase();
+      if (!getCurrentUserAllowedTabs().includes('inventory')) {
+        ['inventoryTableBody', 'bomTableBody', 'inventoryKpiStrip', 'bomSummaryCards'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = '';
+        });
+        return;
+      }
+
+      const q = (document.getElementById('inventorySearchInput')?.value || '').trim();
+      const searchField = document.getElementById('filterInventorySearchField')?.value || 'all';
       const statusFilter = document.getElementById('filterInventoryStatus')?.value || 'all';
       const catFilter = document.getElementById('filterInventoryCategory')?.value || 'all';
       const ownFilter = document.getElementById('filterInventoryOwnership')?.value || 'all';
@@ -5041,8 +5352,16 @@
         if (catFilter !== 'all' && i.category !== catFilter) return false;
         if (ownFilter !== 'all' && i.ownership !== ownFilter) return false;
         if (q) {
-          const hay = `${i.id} ${i.standardCode} ${i.name} ${i.englishName} ${i.specs} ${i.category} ${i.buyer} ${i.holder} ${i.supplier} ${i.project} ${i.usedFor} ${i.notes}`.toLowerCase();
-          if (!hay.includes(q)) return false;
+          const txPeople = (i.transactions || []).map(tx => `${tx.person || ''} ${tx.projectOrVendor || ''} ${tx.note || ''}`).join(' ');
+          let targetText = '';
+          if (searchField === 'name') targetText = `${i.name || ''} ${i.englishName || ''}`;
+          else if (searchField === 'standardCode') targetText = `${i.id || ''} ${i.standardCode || ''}`;
+          else if (searchField === 'specs') targetText = `${i.specs || ''} ${i.notes || ''}`;
+          else if (searchField === 'buyer') targetText = `${i.buyer || ''} ${i.holder || ''} ${txPeople}`;
+          else if (searchField === 'supplier') targetText = `${i.supplier || ''} ${txPeople}`;
+          else if (searchField === 'project') targetText = `${i.project || ''} ${i.usedFor || ''} ${txPeople}`;
+          else targetText = `${i.id} ${i.standardCode} ${i.name} ${i.englishName} ${i.specs} ${i.category} ${i.buyer} ${i.holder} ${i.supplier} ${i.project} ${i.usedFor} ${i.notes} ${txPeople}`;
+          if (!matchesWildcardQuery(targetText, q)) return false;
         }
         return true;
       });
@@ -5050,9 +5369,12 @@
       const mult = invSort.dir === 'asc' ? 1 : -1;
       const items = filtered.sort((a, b) => {
         let cmp = 0;
-        if (invSort.col === 'buyDate') cmp = compareJalaliStrings(a.buyDate, b.buyDate);
+        if (invSort.col === 'added') cmp = getInvAddedOrderValue(a) - getInvAddedOrderValue(b);
+        else if (invSort.col === 'buyDate') cmp = compareJalaliStrings(a.buyDate, b.buyDate);
         else if (invSort.col === 'name') cmp = (a.name || '').localeCompare(b.name || '', 'fa');
+        else if (invSort.col === 'specs') cmp = (a.specs || '').localeCompare(b.specs || '', 'fa');
         else if (invSort.col === 'category') cmp = (a.category || '').localeCompare(b.category || '', 'fa');
+        else if (invSort.col === 'qtyRemaining') cmp = (Number(a.qtyRemaining) || 0) - (Number(b.qtyRemaining) || 0);
         else if (invSort.col === 'unitPrice') cmp = (Number(a.unitPrice) || 0) - (Number(b.unitPrice) || 0);
         else if (invSort.col === 'totalPrice') cmp = (Number(a.totalPrice) || 0) - (Number(b.totalPrice) || 0);
         else if (invSort.col === 'buyer') cmp = (a.buyer || '').localeCompare(b.buyer || '', 'fa');
@@ -5121,12 +5443,14 @@
 
       const tbody = document.getElementById('inventoryTableBody');
       if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="14" class="text-center py-8 muted-text font-bold">هیچ کالایی در انبار ثبت نشده است.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 muted-text font-bold">هیچ کالایی با این مشخصات در انبار یافت نشد.</td></tr>`;
       } else {
         tbody.innerHTML = items.map(item => {
           const isSelected = selectedInvIds.has(item.id);
-          const buyerEmpId = findEmployeeIdByName(item.buyer);
           const usedRatio = item.qtyPurchased > 0 ? Math.min(100, Math.round((item.qtyUsed / item.qtyPurchased) * 100)) : 0;
+          const unitTodayToman = Math.round((Number(item.unitPriceUSD) || 0) * liveUsdRate);
+          const totalTodayToman = Math.round((Number(item.totalPriceUSD) || 0) * liveUsdRate);
+          const txCount = Array.isArray(item.transactions) ? item.transactions.length : 0;
 
           return `
             <tr class="${isSelected ? 'row-selected' : ''} ${item.status === 'to-buy' ? 'row-in-progress' : item.status === 'purchased' ? 'row-completed' : ''}">
@@ -5134,21 +5458,31 @@
                 <input type="checkbox" data-action="toggle-select-inv" data-inv-id="${item.id}" ${isSelected ? 'checked' : ''} class="w-4 h-4 cursor-pointer accent-emerald-600" />
               </td>
               <td class="whitespace-nowrap">
-                <div class="font-mono text-[11px] font-extrabold">${item.id}</div>
-                <div class="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">${item.standardCode || ''}</div>
+                <div class="font-mono text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400">${escapeHtml(item.standardCode || item.id)}</div>
+                <div class="font-mono text-[10px] muted-text">${escapeHtml(item.id)}</div>
               </td>
               <td>
-                <div class="font-extrabold text-xs">${item.name}</div>
-                ${item.englishName ? `<div class="font-mono text-[10px] text-sky-600 dark:text-sky-400 font-semibold" dir="ltr">${item.englishName}</div>` : ''}
-                ${item.specs ? `<div class="text-[10px] muted-text mt-0.5">${item.specs}</div>` : ''}
+                <div data-action="open-inv-history" data-inv-id="${item.id}" class="cursor-pointer group" title="کلیک جهت مشاهده کاردکس ورود و خروج، تامین‌کننده، مسئول خرید و جزئیات کامل">
+                  <div class="font-extrabold text-xs group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                    <span>${escapeHtml(item.name)}</span>
+                  </div>
+                  ${item.englishName ? `<div class="font-mono text-[10px] text-sky-600 dark:text-sky-400 font-semibold mt-0.5" dir="ltr">${escapeHtml(item.englishName)}</div>` : ''}
+                  <div class="text-[10px] muted-text mt-0.5 flex flex-wrap items-center gap-1.5">
+                    <span class="px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-bold">📜 کاردکس (${toPersianDigits(txCount)})</span>
+                    ${item.buyer ? `<span>👤 ${escapeHtml(item.buyer)}</span>` : ''}
+                  </div>
+                </div>
+              </td>
+              <td class="text-[11px] leading-relaxed max-w-[230px]">
+                ${escapeHtml(item.specs || '-')}
               </td>
               <td class="text-xs whitespace-nowrap">
-                <div class="font-bold">${item.category}</div>
-                <div class="mt-0.5">${ownershipBadgeMap[item.ownership] || ''}</div>
+                <div class="font-bold">${escapeHtml(item.category)}</div>
+                <div class="mt-0.5">${ownershipBadgeMap[item.ownership] || escapeHtml(item.ownership || '')}</div>
               </td>
               <td class="whitespace-nowrap">
-                <div class="flex items-center justify-between text-[11px] font-bold mb-1">
-                  <span title="کل مقدار خریداری‌شده یا ورودی">کل: ${toPersianDigits(item.qtyPurchased)} ${item.unit}</span>
+                <div class="flex items-center justify-between text-[11px] font-bold mb-1 gap-2">
+                  <span title="کل مقدار خریداری‌شده یا ورودی">کل: ${toPersianDigits(item.qtyPurchased)} ${escapeHtml(item.unit)}</span>
                   <span class="text-amber-600 dark:text-amber-400" title="مقدار برداشت و مصرف‌شده">مصرف: ${toPersianDigits(item.qtyUsed)}</span>
                   <span class="${item.qtyRemaining > 0 ? 'text-emerald-600 dark:text-emerald-400 font-extrabold' : 'muted-text'}" title="موجودی باقی‌مانده در انبار">مانده: ${toPersianDigits(item.qtyRemaining)}</span>
                 </div>
@@ -5156,44 +5490,35 @@
                   <div class="h-full ${item.qtyRemaining === 0 ? 'bg-emerald-600' : 'bg-sky-500'}" style="width:${usedRatio}%"></div>
                 </div>
                 <div class="flex items-center justify-between gap-1">
-                  <span class="text-[10px] muted-text truncate max-w-[105px]">${toPersianDigits(item.quantity)}</span>
+                  <button type="button" data-action="open-inv-history" data-inv-id="${item.id}" class="text-[10px] font-bold text-sky-600 dark:text-sky-400 hover:underline">± ثبت ورود/خروج</button>
                   <div class="inline-flex items-center gap-0.5">
-                    <button type="button" data-action="inv-use-plus" data-inv-id="${item.id}" class="themed-btn px-1.5 py-0.2 rounded text-[10px] font-extrabold text-amber-600 dark:text-amber-300" title="ثبت برداشت ۱ واحد از انبار (افزایش مصرف)">+مصرف</button>
-                    <button type="button" data-action="inv-use-minus" data-inv-id="${item.id}" class="themed-btn px-1.5 py-0.2 rounded text-[10px] font-bold" title="بازگشت ۱ واحد به موجودی انبار">-مصرف</button>
+                    <button type="button" data-action="inv-use-plus" data-inv-id="${item.id}" class="themed-btn px-1.5 py-0.2 rounded text-[10px] font-extrabold text-rose-600 dark:text-rose-300" title="برداشت ۱ واحد از انبار (افزایش مصرف)">-۱ مصرف</button>
+                    <button type="button" data-action="inv-use-minus" data-inv-id="${item.id}" class="themed-btn px-1.5 py-0.2 rounded text-[10px] font-extrabold text-emerald-600 dark:text-emerald-300" title="بازگشت / افزایش ۱ واحد به موجودی انبار">+۱ انبار</button>
                   </div>
                 </div>
               </td>
               <td class="whitespace-nowrap">
-                <div class="text-xs font-mono font-bold">${formatCurrency(item.unitPrice)} <span class="text-[10px] font-sans font-normal muted-text">تومان</span></div>
-                <div class="text-[11px] font-mono font-extrabold text-emerald-600 dark:text-emerald-400" dir="ltr">${formatUSD(item.unitPriceUSD)}</div>
+                <div class="text-xs font-mono font-bold">${formatCurrency(item.unitPrice)} <span class="text-[10px] font-sans font-normal muted-text">تومان (خرید)</span></div>
+                <div class="text-[11px] font-mono font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">${formatCurrency(unitTodayToman)} <span class="text-[10px] font-sans font-bold">(به نرخ روز)</span></div>
               </td>
               <td class="whitespace-nowrap">
-                <div class="text-xs font-mono font-extrabold text-emerald-600 dark:text-emerald-300">${formatCurrency(item.totalPrice)} <span class="text-[10px] font-sans font-normal">تومان</span></div>
-                <div class="text-[11px] font-mono font-bold text-sky-600 dark:text-sky-400" dir="ltr">${formatUSD(item.totalPriceUSD)}</div>
-              </td>
-              <td>
-                <div class="text-xs font-extrabold text-amber-700 dark:text-amber-300">📍 ${item.holder || '-'}</div>
-                <div class="text-[10px] muted-text mt-0.5">🎯 ${item.usedFor || item.project || '-'}</div>
-              </td>
-              <td class="text-xs font-semibold max-w-[140px]">${item.supplier || '-'}</td>
-              <td class="text-xs whitespace-nowrap">${formatJalaliHuman(item.buyDate)}</td>
-              <td class="text-xs font-bold whitespace-nowrap">
-                <span ${buyerEmpId ? `data-action="open-emp-profile" data-emp-id="${buyerEmpId}" class="emp-link"` : ''}>${item.buyer || '-'}</span>
+                <div class="text-xs font-mono font-extrabold text-emerald-600 dark:text-emerald-300">${formatCurrency(item.totalPrice)} <span class="text-[10px] font-sans font-normal">تومان (خرید)</span></div>
+                <div class="text-[11px] font-mono font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">${formatCurrency(totalTodayToman)} <span class="text-[10px] font-sans font-bold">(به نرخ روز)</span></div>
               </td>
               <td class="whitespace-nowrap space-y-1">
-                <div>${statusBadgeMap[item.status] || item.status}</div>
+                <div>${statusBadgeMap[item.status] || escapeHtml(item.status)}</div>
                 <div>
                   <button type="button" data-action="toggle-inv-bom" data-inv-id="${item.id}" class="px-2 py-0.5 rounded text-[10px] font-extrabold ${item.inBom ? 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30' : 'subtle-bg muted-text'}">
-                    ${item.inBom ? `⚙️ عضو BOM (${toPersianDigits(item.bomQty)} ${item.unit})` : '➕ افزودن به BOM'}
+                    ${item.inBom ? `⚙️ عضو BOM (${toPersianDigits(item.bomQty)} ${escapeHtml(item.unit)})` : '➕ افزودن به BOM'}
                   </button>
                 </div>
               </td>
-              <td class="text-[11px] max-w-[230px] leading-relaxed">${item.notes || '-'}</td>
               <td class="text-center whitespace-nowrap">
                 <div class="inline-flex items-center gap-1">
                   ${item.status === 'to-buy' ? `<button data-action="mark-inv-purchased" data-inv-id="${item.id}" class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">✓ خرید</button>` : ''}
-                  <button data-action="edit-inv" data-inv-id="${item.id}" class="themed-btn p-1 rounded text-xs" title="ویرایش کامل کالا و BOM">✏️</button>
-                  ${canCurrentUserDelete() ? `<button data-action="delete-inv" data-inv-id="${item.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف">🗑️</button>` : ""}
+                  <button type="button" data-action="open-inv-history" data-inv-id="${item.id}" class="themed-btn p-1 rounded text-xs" title="مشاهده کاردکس، تاریخچه ورود/خروج و جزئیات کامل">📜</button>
+                  <button type="button" data-action="edit-inv" data-inv-id="${item.id}" class="themed-btn p-1 rounded text-xs" title="ویرایش کامل کالا و BOM">✏️</button>
+                  ${canCurrentUserDelete() ? `<button type="button" data-action="delete-inv" data-inv-id="${item.id}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف">🗑️</button>` : ""}
                 </div>
               </td>
             </tr>
@@ -5350,12 +5675,23 @@
     // -------------------------------------------------------------------------
     // VIEW 6: PROJECTS, PROJECT TASKS & MEETING MINUTES HUB
     // -------------------------------------------------------------------------
+    const PROJECT_LEGACY_ALIASES = {
+      'PRJ-6': ['پروژه دستگاه حذف آهن (دانشگاه)', 'پروژه حذف آهن شرکت گاز-1'],
+      'PRJ-2': ['پروژه استراتژیک عابر آب (Water ATM)'],
+      'PRJ-5': ['پروژه سیستم‌های تصفیه آب صنعتی (داوود صنعت)'],
+      'PRJ-4': ['مارکتینگ و اینستاگرام آبتانو', 'فروش اینترنتی تک‌تک تجهیزات و قطعات تصفیه آب + پنل خورشیدی'],
+      'PRJ-13': ['برندینگ، ثبت شرکت و زیرساخت']
+    };
+
     function getTasksForProject(proj) {
       if (!proj) return [];
       const pName = String(proj.name || '').trim();
+      const aliases = PROJECT_LEGACY_ALIASES[proj.id] || [];
       return (appState.tasks || []).filter(t => {
         if (proj.id && t.projectId && t.projectId === proj.id) return true;
-        if (pName && String(t.project || '').trim() === pName) return true;
+        const tProj = String(t.project || '').trim();
+        if (pName && tProj === pName) return true;
+        if (aliases.includes(tProj)) return true;
         return false;
       });
     }
@@ -5612,10 +5948,11 @@
       // Edge Case: Check if there are tasks in appState.tasks whose project name is not in appState.projects
       const formalSet = new Set(projects.map(p => String(p.name || '').trim()).filter(Boolean));
       const formalIdSet = new Set(projects.map(p => p.id).filter(Boolean));
+      const aliasSet = new Set(Object.values(PROJECT_LEGACY_ALIASES).flat());
       const unlinkedTasks = allTasks.filter(t => {
         if (t.projectId && formalIdSet.has(t.projectId)) return false;
         const pName = String(t.project || '').trim();
-        if (pName && formalSet.has(pName)) return false;
+        if (pName && (formalSet.has(pName) || aliasSet.has(pName))) return false;
         if (taskStatusFilter === 'open' && getEffectiveTaskStatus(t) === 'completed') return false;
         if (taskStatusFilter === 'completed' && getEffectiveTaskStatus(t) !== 'completed') return false;
         if (q) {
@@ -5682,6 +6019,7 @@
                 <h4 class="font-extrabold text-sm mt-1">${escapeHtml(m.title)}</h4>
               </div>
               <div class="inline-flex items-center gap-1 shrink-0">
+                <button type="button" data-action="print-meeting" data-mtg-id="${escapeHtml(m.id)}" class="themed-btn px-2 py-1 rounded text-[11px] font-bold" title="چاپ رسمی صورت‌جلسه با سربرگ آبتانو">🖨️ چاپ</button>
                 <button type="button" data-action="edit-meeting" data-mtg-id="${escapeHtml(m.id)}" class="themed-btn p-1 rounded text-xs" title="ویرایش صورت‌جلسه">✏️</button>
                 ${canCurrentUserDelete() ? `<button type="button" data-action="delete-meeting" data-mtg-id="${escapeHtml(m.id)}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف صورت‌جلسه">🗑️</button>` : ''}
               </div>
@@ -5691,6 +6029,152 @@
           </div>
         `).join('');
       }
+    }
+
+
+    function openInventoryHistoryModal(invId) {
+      const item = (appState.inventory || []).find(i => i.id === invId);
+      if (!item) return;
+      const liveUsdRate = Number(appState.settings.usdExchangeRate) || 68000;
+      normalizeInventoryItem(item, liveUsdRate);
+      currentInvHistoryItemId = item.id;
+
+      document.getElementById('invHistCodeBadge').textContent = `${item.standardCode || item.id} (${item.id})`;
+      document.getElementById('invHistCategoryBadge').textContent = item.category || 'تجهیزات';
+      document.getElementById('invHistOwnershipBadge').textContent = item.ownership || 'خرید شرکت';
+      document.getElementById('invHistTitle').textContent = item.name || '';
+      document.getElementById('invHistEnglishName').textContent = item.englishName || '';
+      document.getElementById('invHistSupplier').textContent = item.supplier || '-';
+      document.getElementById('invHistBuyer').textContent = item.buyer || '-';
+      document.getElementById('invHistBuyDate').textContent = `${formatJalaliHuman(item.buyDate)} (${toPersianDigits(item.buyDate || '')})`;
+      document.getElementById('invHistHolder').textContent = item.holder || '-';
+      document.getElementById('invHistProject').textContent = `${item.project || '-'}${item.usedFor && item.usedFor !== item.project ? ' • ' + item.usedFor : ''}`;
+      document.getElementById('invHistStockSummary').textContent = `کل ورودی: ${toPersianDigits(item.qtyPurchased)} ${item.unit} | مصرف: ${toPersianDigits(item.qtyUsed)} | مانده در انبار: ${toPersianDigits(item.qtyRemaining)} ${item.unit}`;
+
+      const unitToday = Math.round((Number(item.unitPriceUSD) || 0) * liveUsdRate);
+      const totalToday = Math.round((Number(item.totalPriceUSD) || 0) * liveUsdRate);
+      document.getElementById('invHistUnitPrices').textContent = `${formatCurrency(item.unitPrice)} ت (خرید) | ${formatCurrency(unitToday)} ت (روز) [${formatUSD(item.unitPriceUSD)}]`;
+      document.getElementById('invHistTotalPrices').textContent = `${formatCurrency(item.totalPrice)} ت (خرید) | ${formatCurrency(totalToday)} ت (روز) [${formatUSD(item.totalPriceUSD)}]`;
+      document.getElementById('invHistSpecsAndNotes').textContent = `${item.specs || '-'}${item.notes ? ' — توضیحات: ' + item.notes : ''}`;
+
+      document.getElementById('invTxItemId').value = item.id;
+      document.getElementById('invTxQty').value = 1;
+      document.getElementById('invTxDate').value = appState.settings.currentSimDate || getRealTodayJalaliString();
+      document.getElementById('invTxProjectOrVendor').value = item.project || 'پروژه حذف آهن شرکت گاز-1';
+      document.getElementById('invTxNote').value = '';
+
+      const personListEl = document.getElementById('invTxPersonList');
+      if (personListEl) {
+        personListEl.innerHTML = (appState.employees || []).map(e => `<option value="${escapeHtml(e.name)}"></option>`).join('');
+      }
+      const personInp = document.getElementById('invTxPerson');
+      if (personInp && !personInp.value) {
+        personInp.value = (currentUserSession && currentUserSession.displayName) || item.buyer || 'محمدحسین احمدی نژاد';
+      }
+
+      const txs = Array.isArray(item.transactions) ? item.transactions : [];
+      document.getElementById('invHistTxCountBadge').textContent = `${toPersianDigits(txs.length)} ردیف تردد ثبت‌شده`;
+      const txTbody = document.getElementById('invHistTransactionsTableBody');
+      if (txs.length === 0) {
+        txTbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 muted-text">هنوز ترددی در کاردکس این کالا ثبت نشده است.</td></tr>`;
+      } else {
+        txTbody.innerHTML = txs.map((tx, idx) => {
+          const isOut = tx.type === 'out';
+          const badge = isOut
+            ? `<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-600 dark:text-rose-300 font-mono font-extrabold text-xs" dir="ltr">-${toPersianDigits(tx.qty)} ${escapeHtml(item.unit)}</span> <span class="text-[10px] text-rose-500 font-bold">برداشت/مصرف</span>`
+            : `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-mono font-extrabold text-xs" dir="ltr">+${toPersianDigits(tx.qty)} ${escapeHtml(item.unit)}</span> <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">ورود/خرید</span>`;
+          return `
+            <tr>
+              <td class="whitespace-nowrap font-bold text-xs">
+                <div>📅 ${formatJalaliHuman(tx.date)}</div>
+                <div class="text-[10px] muted-text font-mono">${toPersianDigits(tx.date || '')} ${tx.time ? '• ' + toPersianDigits(tx.time) : ''}</div>
+              </td>
+              <td class="whitespace-nowrap">${badge}</td>
+              <td class="font-extrabold text-xs">${escapeHtml(tx.person || '-')}</td>
+              <td class="text-xs leading-relaxed">
+                <div class="font-semibold">${escapeHtml(tx.projectOrVendor || '-')}</div>
+                ${tx.note ? `<div class="text-[11px] muted-text">${escapeHtml(tx.note)}</div>` : ''}
+              </td>
+              <td class="text-center whitespace-nowrap">
+                <button type="button" data-action="delete-inv-tx" data-inv-id="${escapeHtml(item.id)}" data-tx-idx="${idx}" class="themed-btn p-1 rounded text-xs hover:text-rose-500" title="حذف این تردد و اصلاح موجودی">🗑️</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      openModal('modalInventoryHistory');
+    }
+
+    function printMeetingMinutes(mtgId) {
+      const m = (appState.meetings || []).find(x => x.id === mtgId);
+      if (!m) return;
+      let logoData = '';
+      try {
+        logoData = localStorage.getItem(LOGO_STORAGE_KEY) || (appState.settings && appState.settings.customLogo) || '';
+      } catch (e) {}
+      const win = window.open('', '_blank', 'width=850,height=950');
+      if (!win) {
+        showToast('لطفاً اجازه باز شدن پنجره چاپ (Pop-up) را بدهید.', 'error');
+        return;
+      }
+      const printHtml = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>صورت‌جلسه رسمی آبتانو - ${escapeHtml(m.title)}</title>
+  <style>
+    @page { size: A4; margin: 16mm; }
+    body { font-family: Tahoma, Vazirmatn, Arial, sans-serif; direction: rtl; color: #0f172a; line-height: 1.7; margin: 0; padding: 0; }
+    .sheet { border: 2px solid #107c41; border-radius: 12px; padding: 24px 28px; }
+    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #107c41; padding-bottom: 16px; margin-bottom: 18px; }
+    .brand-box { display: flex; align-items: center; gap: 14px; }
+    .brand-box img { max-height: 60px; max-width: 140px; object-fit: contain; }
+    .brand-title { font-size: 20px; font-weight: bold; color: #107c41; margin: 0; }
+    .brand-sub { font-size: 12px; color: #475569; margin-top: 4px; }
+    .meta-box { text-align: left; font-size: 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 14px; }
+    .mtg-title { font-size: 16px; font-weight: bold; background: #f0fdf4; border-right: 4px solid #107c41; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; }
+    .attendees { font-size: 13px; margin-bottom: 16px; padding: 8px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; }
+    .summary-box { font-size: 13px; white-space: pre-line; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; min-height: 320px; }
+    .sigs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 36px; text-align: center; font-size: 12px; font-weight: bold; }
+    .sig-cell { border-top: 1px dashed #64748b; padding-top: 10px; margin-top: 40px; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="padding:12px; text-align:center; background:#f1f5f9; margin-bottom:16px;">
+    <button onclick="window.print()" style="background:#107c41; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer; font-family:inherit;">🖨️ چاپ صورت‌جلسه (A4)</button>
+  </div>
+  <div class="sheet">
+    <div class="header">
+      <div class="brand-box">
+        ${logoData ? `<img src="${logoData}" alt="Abtano" />` : ''}
+        <div>
+          <h1 class="brand-title">شرکت مهندسی آبتانو (Abtano)</h1>
+          <div class="brand-sub">تصفیه آب و پساب صنعتی، فناوری غشایی (RO/MD) و انرژی‌های تجدیدپذیر</div>
+        </div>
+      </div>
+      <div class="meta-box">
+        <div><strong>شماره سند:</strong> ${escapeHtml(m.id)}</div>
+        <div><strong>تاریخ جلسه:</strong> ${formatJalaliHuman(m.date)} (${toPersianDigits(m.date)})</div>
+      </div>
+    </div>
+    <div class="mtg-title">موضوع جلسه: ${escapeHtml(m.title)}</div>
+    <div class="attendees"><strong>👥 حاضرین در جلسه:</strong> ${escapeHtml(m.attendees || '-')}</div>
+    <div class="summary-box"><strong>📝 شرح مذاکرات، تصمیمات و مصوبات اجرایی:</strong>
+
+${escapeHtml(m.summary || '')}</div>
+    <div class="sigs">
+      <div class="sig-cell">مدیرعامل و استاد مشاور<br/>دکتر مجتبی جهانشاهی</div>
+      <div class="sig-cell">مسئول پروژه و نظارت اجرایی<br/>مهندس شایان عباسی</div>
+      <div class="sig-cell">امضای سایر حاضرین جلسه</div>
+    </div>
+  </div>
+</body>
+</html>`;
+      win.document.open();
+      win.document.write(printHtml);
+      win.document.close();
     }
 
     // -------------------------------------------------------------------------
@@ -6312,8 +6796,145 @@
     }
 
     // -------------------------------------------------------------------------
-    // REMOTE SERVER SYNC ENGINE (v8.0 Queue-Safe, Merge-First & Anti-Wipeout)
+
+    let lastLiveUsdFetchTs = 0;
+    let liveUsdFetchInFlight = false;
+
+    function applyLiveUsdRateSilently(newRate) {
+      const r = Number(newRate) || 0;
+      if (r < 10000 || r > 5000000 || !appState || !appState.settings) return;
+      const changed = Number(appState.settings.usdExchangeRate) !== r;
+      appState.settings.usdExchangeRate = r;
+      lastLiveUsdFetchTs = Date.now();
+
+      const usdInputEl = document.getElementById('invUsdRateInput');
+      if (usdInputEl && document.activeElement !== usdInputEl) {
+        usdInputEl.value = r;
+      }
+
+      // If creating a brand-new item in modalInventory and user hasn't manually overridden the rate, update it silently
+      const invModal = document.getElementById('modalInventory');
+      const invIdEl = document.getElementById('invFormId');
+      const invRateEl = document.getElementById('invFormExchangeRate');
+      if (invModal && !invModal.classList.contains('hidden') && invIdEl && !invIdEl.value && invRateEl && invRateEl.dataset.userEdited !== '1' && document.activeElement !== invRateEl) {
+        invRateEl.value = r;
+        invRateEl.dispatchEvent(new Event('input'));
+      }
+
+      if (changed) {
+        try {
+          if (currentUserSession && currentUserSession.token) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+          }
+        } catch (e) {}
+        if (activeTab === 'inventory' && getCurrentUserAllowedTabs().includes('inventory')) {
+          renderInventoryView();
+        }
+      }
+    }
+
+    async function fetchLiveUsdRateSilently(force = false) {
+      if (liveUsdFetchInFlight) return;
+      if (!currentUserSession || !currentUserSession.token) return;
+      if (!getCurrentUserAllowedTabs().includes('inventory')) return;
+      if (!force && (Date.now() - lastLiveUsdFetchTs < 180000)) return;
+      const url = getStoredCloudApiUrl();
+      const syncSess = getEffectiveSyncSession();
+      if (!url || !syncSess || !syncSess.username || !syncSess.token) return;
+
+      liveUsdFetchInFlight = true;
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'getUsdRate',
+            username: syncSess.username,
+            token: syncSess.token,
+            force: Boolean(force)
+          })
+        });
+        const data = await res.json();
+        if (data && data.ok && Number(data.liveUsdRate) >= 10000) {
+          applyLiveUsdRateSilently(Number(data.liveUsdRate));
+        }
+      } catch (e) {
+        // Silent background crawl: never alert or disturb the user if offline
+      } finally {
+        liveUsdFetchInFlight = false;
+      }
+    }
+
+        // REMOTE SERVER SYNC ENGINE (v8.0 Queue-Safe, Merge-First & Anti-Wipeout)
     // -------------------------------------------------------------------------
+    const DEFAULT_SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours default server token TTL
+
+    function extractTokenIssuedAtMs(tokenStr) {
+      if (!tokenStr || typeof tokenStr !== 'string') return 0;
+      if (tokenStr.startsWith('v86.') || tokenStr.startsWith('v85.')) {
+        const parts = tokenStr.split('.');
+        const ts = Number(parts[1]) || 0;
+        if (ts > 1700000000000) return ts;
+      }
+      return 0;
+    }
+
+    function computeSessionExpiresAt(tokenStr, serverExpiresAt = 0) {
+      if (Number(serverExpiresAt) > Date.now()) return Number(serverExpiresAt);
+      const issuedAt = extractTokenIssuedAtMs(tokenStr);
+      if (issuedAt > 0) return issuedAt + DEFAULT_SESSION_TTL_MS;
+      return Date.now() + DEFAULT_SESSION_TTL_MS;
+    }
+
+    function isSessionTokenExpired(sess) {
+      if (!sess || !sess.username || !sess.token) return true;
+      const now = Date.now();
+      if (sess.tokenExpiresAt && now > Number(sess.tokenExpiresAt)) return true;
+      const issuedAt = extractTokenIssuedAtMs(sess.token);
+      const maxAge = (sess.tokenExpiresAt && issuedAt > 0 && Number(sess.tokenExpiresAt) > issuedAt)
+        ? (Number(sess.tokenExpiresAt) - issuedAt)
+        : DEFAULT_SESSION_TTL_MS;
+      if (issuedAt > 0 && (now - issuedAt) > maxAge) return true;
+      return false;
+    }
+
+    function updateActiveSessionToken(newToken, newExpiresAt = 0) {
+      if (!newToken || !currentUserSession) return;
+      const exp = computeSessionExpiresAt(newToken, newExpiresAt);
+      if (adminOriginalSession) {
+        adminOriginalSession.token = newToken;
+        adminOriginalSession.tokenExpiresAt = exp;
+        try { localStorage.setItem(ADMIN_REAL_SESSION_KEY, JSON.stringify(adminOriginalSession)); } catch (e) {}
+      } else {
+        currentUserSession.token = newToken;
+        currentUserSession.tokenExpiresAt = exp;
+        try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUserSession)); } catch (e) {}
+      }
+    }
+
+    function forceClearClientSessionAndData(toastMessage = '') {
+      try {
+        if (appState && ((Array.isArray(appState.tasks) && appState.tasks.length > 0) || (Array.isArray(appState.employees) && appState.employees.length > 0))) {
+          saveLocalRollingBackup('بکاپ خودکار قبل از پایان نشست');
+        }
+      } catch (e) {}
+      currentUserSession = null;
+      adminOriginalSession = null;
+      appState = createCleanInitialState();
+      clearLocalStateDirty();
+      try {
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+        localStorage.removeItem(ADMIN_REAL_SESSION_KEY);
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      const pwdInp = document.getElementById('loginPasswordInput');
+      if (pwdInp) pwdInp.value = '';
+      const urlInp = document.getElementById('adminCloudApiUrlInput');
+      if (urlInp) { urlInp.value = ''; urlInp.type = 'password'; }
+      renderAll();
+      if (toastMessage) showToast(toastMessage, 'info');
+    }
+
     function getEffectiveSyncSession() {
       // If Admin is previewing an employee's portal via "تست دید کاربر", always authenticate
       // network syncs with Admin's real session so the master state is NEVER stripped!
@@ -6366,13 +6987,7 @@
 
           if (data && data.ok) {
             if (data.newToken && currentUserSession) {
-              if (adminOriginalSession) {
-                adminOriginalSession.token = data.newToken;
-                try { localStorage.setItem(ADMIN_REAL_SESSION_KEY, JSON.stringify(adminOriginalSession)); } catch (e) {}
-              } else {
-                currentUserSession.token = data.newToken;
-                try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUserSession)); } catch (e) {}
-              }
+              updateActiveSessionToken(data.newToken, data.tokenExpiresAt);
             }
             // Reconcile server-merged state back into local state (unless user made new edits while request was in flight)
             if (data.state && !pendingCloudPushAfterCurrent) {
@@ -6451,6 +7066,14 @@
 
         if (data && data.ok && data.state) {
           hasCompletedInitialCloudHandshake = true;
+          if (data.newToken && currentUserSession) {
+            updateActiveSessionToken(data.newToken, data.tokenExpiresAt);
+          }
+          if (Number(data.liveUsdRate) >= 10000) {
+            data.state.settings = data.state.settings || {};
+            data.state.settings.usdExchangeRate = Number(data.liveUsdRate);
+            lastLiveUsdFetchTs = Date.now();
+          }
           if (data.userPermissions && currentUserSession && !adminOriginalSession) {
             currentUserSession.role = data.userPermissions.role || currentUserSession.role;
             currentUserSession.allowedTabs = data.userPermissions.allowedTabs || currentUserSession.allowedTabs;
@@ -6624,7 +7247,8 @@
               allowedTabs: data.user.allowedTabs,
               canDelete: Boolean(data.user.role === 'admin' || data.user.canDelete === true),
               canEditTasks: Boolean(data.user.role === 'admin' || data.user.canEditTasks === true),
-              token: data.user.token || ''
+              token: data.user.token || '',
+              tokenExpiresAt: computeSessionExpiresAt(data.user.token || '', data.user.tokenExpiresAt)
             };
             portalPreviewEmpId = currentUserSession.employeeId || '';
             activePortalSubTab = 'emp-dashboard';
@@ -6632,6 +7256,11 @@
             try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUserSession)); } catch (e) {}
 
             if (data.state) {
+              if (Number(data.liveUsdRate) >= 10000) {
+                data.state.settings = data.state.settings || {};
+                data.state.settings.usdExchangeRate = Number(data.liveUsdRate);
+                lastLiveUsdFetchTs = Date.now();
+              }
               const keepLogo = appState && appState.settings && appState.settings.customLogo;
               appState = normalizeState(data.state);
               if (keepLogo) appState.settings.customLogo = keepLogo;
@@ -6702,6 +7331,9 @@
         document.getElementById('permCalculator').checked = tabs.includes('calculator') || isAdm;
         document.getElementById('permDashboard').checked = tabs.includes('dashboard') || isAdm;
         document.getElementById('permAllTasks').checked = tabs.includes('tasks') || isAdm;
+        if (document.getElementById('permEmployees')) {
+          document.getElementById('permEmployees').checked = tabs.includes('employees') || tabs.includes('dashboard') || isAdm;
+        }
         document.getElementById('permSettings').checked = tabs.includes('settings') || isAdm;
 
         const editTasksBox = document.getElementById('permEditTasks');
@@ -6723,6 +7355,7 @@
         document.getElementById('permCalculator').checked = false;
         document.getElementById('permDashboard').checked = false;
         document.getElementById('permAllTasks').checked = false;
+        if (document.getElementById('permEmployees')) document.getElementById('permEmployees').checked = false;
         document.getElementById('permSettings').checked = true;
         // CRITICAL REQUIREMENT: ویرایش وظایف is UNCHECKED (false) by default!
         const editTasksBox = document.getElementById('permEditTasks');
@@ -6959,6 +7592,9 @@
         if (btn.getAttribute('data-tab') === tabId) btn.classList.add('tab-active');
         else btn.classList.remove('tab-active');
       });
+      if (tabId === 'inventory') {
+        fetchLiveUsdRateSilently(false);
+      }
     }
 
     function openTaskModalForEdit(taskId, defaultDate = null, defaultEmpId = null, defaultProjectName = null) {
@@ -7151,12 +7787,18 @@
         const savedSess = localStorage.getItem(SESSION_STORAGE_KEY);
         if (savedSess) {
           const parsedSess = JSON.parse(savedSess);
-          const isExpired = parsedSess && parsedSess.tokenExpiresAt && Date.now() > Number(parsedSess.tokenExpiresAt);
+          const effectiveCheckSess = adminOriginalSession || parsedSess;
+          const isExpired = isSessionTokenExpired(effectiveCheckSess);
           if (parsedSess && parsedSess.username && parsedSess.token && !isExpired) {
+            if (!parsedSess.tokenExpiresAt) {
+              parsedSess.tokenExpiresAt = computeSessionExpiresAt(parsedSess.token, 0);
+              try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(parsedSess)); } catch (e) {}
+            }
             currentUserSession = parsedSess;
             portalPreviewEmpId = parsedSess.employeeId || '';
             activeTab = parsedSess.role === 'admin' ? 'dashboard' : 'my-portal';
           } else {
+            adminOriginalSession = null;
             localStorage.removeItem(SESSION_STORAGE_KEY);
             localStorage.removeItem(ADMIN_REAL_SESSION_KEY);
             localStorage.removeItem(STORAGE_KEY);
@@ -7172,19 +7814,29 @@
       renderAll();
 
       async function autoSyncWithCloudOnOpen(silent = true) {
+        if (currentUserSession && isSessionTokenExpired(getEffectiveSyncSession())) {
+          forceClearClientSessionAndData('نشست امنیتی شما منقضی شده است. لطفاً مجدداً وارد شوید.');
+          return false;
+        }
         const url = getStoredCloudApiUrl();
         if (!url || !currentUserSession || !currentUserSession.token) return false;
         if (cloudSyncInProgress) return false;
         const ok = await pullStateFromCloudBackend(silent);
         if (!ok && currentUserSession && currentUserSession.token) {
           // Automatic retry if browser/mobile network was waking up on reopen
-          setTimeout(() => {
+          setTimeout(async () => {
             if (currentUserSession && !cloudSyncInProgress) {
-              pullStateFromCloudBackend(true);
+              const retryOk = await pullStateFromCloudBackend(true);
+              if (!retryOk && Number(lastLiveUsdFetchTs) === 0) {
+                fetchLiveUsdRateSilently(false);
+              }
             }
           }, 2500);
         } else if (hasUnsavedCloudChanges && !cloudSyncInProgress) {
           await pushStateToCloudBackend(true);
+        } else if (ok && Number(lastLiveUsdFetchTs) === 0) {
+          // Fallback if server code.gs is an older deployment that didn't bundle liveUsdRate in syncPull
+          fetchLiveUsdRateSilently(false);
         }
         return ok;
       }
@@ -7245,6 +7897,10 @@
       // Safe background auto-pull every 25s when tab is visible and idle (syncs team updates & enforces instant logout on password change)
       setInterval(() => {
         if (document.visibilityState !== 'visible') return;
+        if (currentUserSession && isSessionTokenExpired(getEffectiveSyncSession())) {
+          forceClearClientSessionAndData('نشست امنیتی شما منقضی شده است. لطفاً مجدداً وارد شوید.');
+          return;
+        }
         if (!currentUserSession || cloudSyncInProgress || hasUnsavedCloudChanges) return;
         const anyModalOpen = Array.from(document.querySelectorAll('[id^="modal"]')).some(m => !m.classList.contains('hidden'));
         const activeTag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
@@ -7663,8 +8319,101 @@
 
       // Inventory Filters & Buttons
       document.getElementById('inventorySearchInput').addEventListener('input', renderInventoryView);
+      document.getElementById('filterInventorySearchField')?.addEventListener('change', renderInventoryView);
       document.getElementById('filterInventoryStatus').addEventListener('change', renderInventoryView);
       document.getElementById('btnExportInventoryCSV').addEventListener('click', () => exportCSVData(false));
+
+      document.getElementById('btnInvSortAdded')?.addEventListener('click', () => {
+        if (invSort.col === 'added') {
+          invSort.dir = invSort.dir === 'desc' ? 'asc' : 'desc';
+        } else {
+          invSort.col = 'added';
+          invSort.dir = 'desc';
+        }
+        renderInventoryView();
+      });
+
+      document.getElementById('btnTaskGridSortAdded')?.addEventListener('click', () => {
+        if (taskSort.col === 'added') {
+          taskSort.dir = taskSort.dir === 'desc' ? 'asc' : 'desc';
+        } else {
+          taskSort.col = 'added';
+          taskSort.dir = 'desc';
+        }
+        renderTasksGridView();
+      });
+
+      document.getElementById('btnPortalTasksSortAdded')?.addEventListener('click', () => {
+        if (portalTaskSort.col === 'added') {
+          portalTaskSort.dir = portalTaskSort.dir === 'desc' ? 'asc' : 'desc';
+        } else {
+          portalTaskSort.col = 'added';
+          portalTaskSort.dir = 'desc';
+        }
+        renderMyPortalView();
+      });
+
+      document.getElementById('btnCloseInventoryHistoryModal')?.addEventListener('click', () => closeModal('modalInventoryHistory'));
+      document.getElementById('btnDoneInventoryHistoryModal')?.addEventListener('click', () => closeModal('modalInventoryHistory'));
+      document.getElementById('btnInvHistEditItem')?.addEventListener('click', () => {
+        const targetId = currentInvHistoryItemId;
+        closeModal('modalInventoryHistory');
+        if (targetId) {
+          const fakeBtn = document.createElement('button');
+          fakeBtn.setAttribute('data-action', 'edit-inv');
+          fakeBtn.setAttribute('data-inv-id', targetId);
+          document.body.appendChild(fakeBtn);
+          fakeBtn.click();
+          fakeBtn.remove();
+        }
+      });
+
+      document.getElementById('formInvTransaction')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const invId = document.getElementById('invTxItemId').value;
+        const item = (appState.inventory || []).find(i => i.id === invId);
+        if (!item) return;
+        const txType = document.getElementById('invTxType').value === 'in' ? 'in' : 'out';
+        const qty = Math.max(0.01, parseFloat(document.getElementById('invTxQty').value) || 1);
+        const person = document.getElementById('invTxPerson').value.trim() || 'محمدحسین احمدی نژاد';
+        const dateStr = toEnglishDigits(document.getElementById('invTxDate').value.trim()) || getRealTodayJalaliString();
+        const projOrVendor = document.getElementById('invTxProjectOrVendor').value.trim();
+        const note = document.getElementById('invTxNote').value.trim();
+        const nowTime = new Date().toTimeString().slice(0, 5);
+
+        pushUndoSnapshot();
+        item.transactions = Array.isArray(item.transactions) ? item.transactions : [];
+        item.transactions.unshift({
+          id: generateUniqueUid('tx'),
+          date: dateStr,
+          time: nowTime,
+          type: txType,
+          qty,
+          person,
+          projectOrVendor: projOrVendor,
+          note
+        });
+
+        if (txType === 'in') {
+          item.qtyPurchased = Number((item.qtyPurchased + qty).toFixed(2));
+          item.status = 'in-stock';
+        } else {
+          item.qtyUsed = Number((item.qtyUsed + qty).toFixed(2));
+          if (person) item.holder = `تحویل به ${person}${projOrVendor ? ' (' + projOrVendor + ')' : ''}`;
+          if (projOrVendor) item.usedFor = projOrVendor;
+        }
+        item.qtyRemaining = Math.max(0, Number((item.qtyPurchased - item.qtyUsed).toFixed(2)));
+        item.quantity = `${item.qtyPurchased} ${item.unit} (${item.qtyUsed} مصرف / ${item.qtyRemaining} مانده)`;
+        item.totalPrice = Math.round((Number(item.unitPrice) || 0) * item.qtyPurchased);
+        const rate = Number(item.exchangeRate) || Number(appState.settings.usdExchangeRate) || 68000;
+        item.totalPriceUSD = Number(((Number(item.unitPriceUSD) || (item.unitPrice / rate)) * item.qtyPurchased).toFixed(2));
+        item._updatedAt = Date.now();
+
+        recordAuditLog('inventory', `${txType === 'in' ? '🟢 ثبت ورود به انبار (+' : '🔴 ثبت برداشت از انبار (-'}${toPersianDigits(qty)} ${item.unit}) برای «${item.name}» توسط ${person}`);
+        saveAppState(true, false);
+        renderAll();
+        openInventoryHistoryModal(item.id);
+      });
 
       function syncInvModalCalculations(sourceField) {
         const qtyP = Math.max(0, parseFloat(document.getElementById('invFormQtyPurchased').value) || 0);
@@ -7712,7 +8461,10 @@
       });
       document.getElementById('invFormUnitPrice').addEventListener('input', () => syncInvModalCalculations('unitToman'));
       document.getElementById('invFormTotalPrice').addEventListener('input', () => syncInvModalCalculations('totalToman'));
-      document.getElementById('invFormExchangeRate').addEventListener('input', () => syncInvModalCalculations('rate'));
+      document.getElementById('invFormExchangeRate').addEventListener('input', (ev) => {
+        if (ev && ev.isTrusted && ev.target) ev.target.dataset.userEdited = '1';
+        syncInvModalCalculations('rate');
+      });
       document.getElementById('invFormUnitPriceUSD').addEventListener('input', () => syncInvModalCalculations('unitUSD'));
       document.getElementById('invFormTotalPriceUSD').addEventListener('input', () => syncInvModalCalculations('totalUSD'));
 
@@ -7720,7 +8472,10 @@
         document.getElementById('formInventory').reset();
         document.getElementById('invFormId').value = '';
         document.getElementById('invFormStandardCode').value = generateNextInvId();
-        document.getElementById('invFormExchangeRate').value = Number(appState.settings.usdExchangeRate) || 68000;
+        const rateInp = document.getElementById('invFormExchangeRate');
+        rateInp.dataset.userEdited = '0';
+        rateInp.value = Number(appState.settings.usdExchangeRate) || 269700;
+        fetchLiveUsdRateSilently(true);
         document.getElementById('invFormQtyPurchased').value = 1;
         document.getElementById('invFormQtyUsed').value = 0;
         document.getElementById('invFormBomQty').value = 1;
@@ -8333,11 +9088,14 @@
         const rate = Math.max(1, Number(document.getElementById('invFormExchangeRate').value) || Number(appState.settings.usdExchangeRate) || 68000);
         const uPrice = Number(document.getElementById('invFormUnitPrice').value) || 0;
         const tPrice = Number(document.getElementById('invFormTotalPrice').value) || 0;
+        const existingInv = id ? appState.inventory.find(x => x.id === id) : null;
         const assignedInvId = id || generateNextInvId();
         const payload = normalizeInventoryItem({
           id: assignedInvId,
-          _uid: generateUniqueUid('inv'),
+          _uid: (existingInv && existingInv._uid) ? existingInv._uid : generateUniqueUid('inv'),
           _updatedAt: Date.now(),
+          _createdClientTs: (existingInv && existingInv._createdClientTs) ? existingInv._createdClientTs : Date.now(),
+          transactions: (existingInv && Array.isArray(existingInv.transactions)) ? existingInv.transactions : [],
           standardCode: document.getElementById('invFormStandardCode').value.trim() || assignedInvId,
           name: document.getElementById('invFormName').value.trim(),
           englishName: document.getElementById('invFormEnglishName').value.trim(),
@@ -8745,6 +9503,36 @@
             renderAll();
             showToast(`کالای «${item.name}» به وضعیت خریداری‌شده تغییر یافت.`);
           }
+        } else if (action === 'toggle-emp-page-completed') {
+          empPageTaskFilter = empPageTaskFilter === 'open' ? 'all' : 'open';
+          renderEmployeesView();
+        } else if (action === 'open-inv-history') {
+          openInventoryHistoryModal(btn.getAttribute('data-inv-id'));
+        } else if (action === 'delete-inv-tx') {
+          const invId = btn.getAttribute('data-inv-id');
+          const txIdx = parseInt(btn.getAttribute('data-tx-idx'), 10);
+          const item = (appState.inventory || []).find(i => i.id === invId);
+          if (item && Array.isArray(item.transactions) && item.transactions[txIdx]) {
+            pushUndoSnapshot();
+            const removed = item.transactions.splice(txIdx, 1)[0];
+            if (removed && removed.id) recordTombstoneDeletion('logs', `id:${removed.id}`);
+            if (removed) {
+              if (removed.type === 'in') {
+                item.qtyPurchased = Math.max(0, Number((item.qtyPurchased - (Number(removed.qty) || 0)).toFixed(2)));
+              } else {
+                item.qtyUsed = Math.max(0, Number((item.qtyUsed - (Number(removed.qty) || 0)).toFixed(2)));
+              }
+              item.qtyRemaining = Math.max(0, Number((item.qtyPurchased - item.qtyUsed).toFixed(2)));
+              item.quantity = `${item.qtyPurchased} ${item.unit} (${item.qtyUsed} مصرف / ${item.qtyRemaining} مانده)`;
+            }
+            item._updatedAt = Date.now();
+            saveAppState(false, false);
+            renderAll();
+            openInventoryHistoryModal(item.id);
+            showToast('ردیف تردد از کاردکس حذف و موجودی اصلاح شد.', 'info');
+          }
+        } else if (action === 'print-meeting') {
+          printMeetingMinutes(btn.getAttribute('data-mtg-id'));
         } else if (action === 'inv-use-plus') {
           const invId = btn.getAttribute('data-inv-id');
           const item = appState.inventory.find(i => i.id === invId);
@@ -8754,6 +9542,18 @@
             item.qtyRemaining = Math.max(0, Number((item.qtyPurchased - item.qtyUsed).toFixed(2)));
             item.quantity = `${item.qtyPurchased} ${item.unit} (${item.qtyUsed} مصرف / ${item.qtyRemaining} مانده)`;
             if (item.inBom) item.bomQty = item.qtyUsed;
+            item.transactions = Array.isArray(item.transactions) ? item.transactions : [];
+            item.transactions.unshift({
+              id: generateUniqueUid('tx'),
+              date: getRealTodayJalaliString(),
+              time: new Date().toTimeString().slice(0, 5),
+              type: 'out',
+              qty: 1,
+              person: (currentUserSession && currentUserSession.displayName) || item.buyer || 'تیم فنی',
+              projectOrVendor: item.project || 'مصرف کارگاهی',
+              note: 'ثبت سریع برداشت ۱ واحد از جدول انبار'
+            });
+            item._updatedAt = Date.now();
             saveAppState(false, false);
             renderAll();
             showToast(`۱ ${item.unit} از «${item.name}» مصرف شد (مانده در انبار: ${toPersianDigits(item.qtyRemaining)} ${item.unit}).`);
@@ -8763,13 +9563,29 @@
           const item = appState.inventory.find(i => i.id === invId);
           if (item) {
             pushUndoSnapshot();
-            item.qtyUsed = Math.max(0, Number((item.qtyUsed - 1).toFixed(2)));
+            if (item.qtyUsed > 0) {
+              item.qtyUsed = Math.max(0, Number((item.qtyUsed - 1).toFixed(2)));
+            } else {
+              item.qtyPurchased = Number((item.qtyPurchased + 1).toFixed(2));
+            }
             item.qtyRemaining = Math.max(0, Number((item.qtyPurchased - item.qtyUsed).toFixed(2)));
             item.quantity = `${item.qtyPurchased} ${item.unit} (${item.qtyUsed} مصرف / ${item.qtyRemaining} مانده)`;
             if (item.inBom && item.qtyUsed > 0) item.bomQty = item.qtyUsed;
+            item.transactions = Array.isArray(item.transactions) ? item.transactions : [];
+            item.transactions.unshift({
+              id: generateUniqueUid('tx'),
+              date: getRealTodayJalaliString(),
+              time: new Date().toTimeString().slice(0, 5),
+              type: 'in',
+              qty: 1,
+              person: (currentUserSession && currentUserSession.displayName) || item.buyer || 'تدارکات',
+              projectOrVendor: item.supplier || 'برگشت به انبار / خرید',
+              note: 'افزایش ۱ واحد به موجودی انبار'
+            });
+            item._updatedAt = Date.now();
             saveAppState(false, false);
             renderAll();
-            showToast(`۱ ${item.unit} به موجودی انبار «${item.name}» بازگردانده شد (مانده: ${toPersianDigits(item.qtyRemaining)} ${item.unit}).`);
+            showToast(`۱ ${item.unit} به موجودی انبار «${item.name}» اضافه شد (مانده: ${toPersianDigits(item.qtyRemaining)} ${item.unit}).`);
           }
         } else if (action === 'toggle-inv-bom') {
           const invId = btn.getAttribute('data-inv-id');
@@ -8996,6 +9812,12 @@
           return;
         }
 
+        const empSortSelect = e.target.closest('[data-action="emp-page-sort-tasks"]');
+        if (empSortSelect) {
+          empPageTaskSort = empSortSelect.value || 'deadline';
+          renderEmployeesView();
+          return;
+        }
         const empBaseTimeInput = e.target.closest('[data-action="emp-inline-base-time"]');
         if (empBaseTimeInput) {
           const empId = empBaseTimeInput.getAttribute('data-emp-id');
@@ -9091,23 +9913,7 @@
         forceClearClientSessionAndData('همگام‌سازی کامل شد و با موفقیت خارج شدید. اطلاعات محلی از مرورگر پاکسازی شد.');
       });
 
-      function forceClearClientSessionAndData(toastMessage = '') {
-        currentUserSession = null;
-        adminOriginalSession = null;
-        appState = createCleanInitialState();
-        clearLocalStateDirty();
-        try {
-          localStorage.removeItem(SESSION_STORAGE_KEY);
-          localStorage.removeItem(ADMIN_REAL_SESSION_KEY);
-          localStorage.removeItem(STORAGE_KEY);
-        } catch (e) {}
-        const pwdInp = document.getElementById('loginPasswordInput');
-        if (pwdInp) pwdInp.value = '';
-        const urlInp = document.getElementById('adminCloudApiUrlInput');
-        if (urlInp) { urlInp.value = ''; urlInp.type = 'password'; }
-        renderAll();
-        if (toastMessage) showToast(toastMessage, 'info');
-      }
+
 
       const revokeBtn = document.getElementById('btnRevokeAllSessions');
       if (revokeBtn) {
@@ -9750,6 +10556,7 @@
         } else {
           if (document.getElementById('permDashboard').checked) allowedTabs.push('dashboard');
           if (document.getElementById('permAllTasks').checked) allowedTabs.push('tasks');
+          if (document.getElementById('permEmployees')?.checked || document.getElementById('permDashboard').checked) allowedTabs.push('employees');
           if (document.getElementById('permCalendar').checked) allowedTabs.push('calendar');
           if (document.getElementById('permInventory').checked) allowedTabs.push('inventory');
           if (document.getElementById('permProjects').checked) allowedTabs.push('projects');
